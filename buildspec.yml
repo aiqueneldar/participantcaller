@@ -19,11 +19,11 @@ phases:
       - TMP_DIR="dist-$ISO_DATE"
       - mkdir $TMP_DIR
       - cp *.py $TMP_DIR
-      - cp appspec.yml $TMP_DIR
       - cp -rf env/lib/python*/site-packages/* $TMP_DIR
       - cd $TMP_DIR
       - zip -r ../PartCallerAPI.zip *
 artifacts:
   files:
     - PartCallerAPI.zip
+    - appspec.yml
   name: PartCallerAPI
