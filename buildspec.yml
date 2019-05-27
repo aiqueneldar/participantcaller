@@ -4,7 +4,13 @@ phases:
     runtime-versions:
       python: 3.7
     commands:
+      - apt-get install python-pip zip
+      - pip install --upgrade pip
       - pip install -r requirements.txt
   build:
     commands:
-      - python main.py
+      - zip -r PartCallerAPI.zip **/*.py
+  artifacts:
+    files:
+      - PartCallerAPI.zip
+    name: PartCallerAPI
