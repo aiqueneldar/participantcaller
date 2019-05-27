@@ -24,8 +24,9 @@ phases:
       - zip -r ../PartCallerAPI.zip *
   post_build:
     commands:
+      - cd ..
       - export BUCKET=partcallerartifactbucket
-      - aws cloudformation package --template-file ./template.yaml --s3-bucket $BUCKET --output-template-file ./outputtemplate.yaml --debug
+      - aws cloudformation package --template-file template.yaml --s3-bucket $BUCKET --output-template-file outputtemplate.yaml --debug
 artifacts:
   type: zip
   files:
