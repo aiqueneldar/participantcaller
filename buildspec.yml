@@ -27,4 +27,4 @@ artifacts:
   files:
     - PartCallerAPI.zip
     - appspec.yml
-  name: PartCallerAPI
+  discard-paths: yes
