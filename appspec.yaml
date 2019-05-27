@@ -1,8 +1,4 @@
 Version: 0.0
-Os: linux
-Files:
-  - Source: ./PartCallerAPI.zip
-    Destination: /tmp
 Resources:
   - PartCallerAPIGetEvent: # Replace "MyFunction" with the name of your Lambda function
       Type: AWS::Lambda::Function
@@ -11,8 +7,3 @@ Resources:
         Alias: "getevent" # Specify the alias for your Lambda function
         CurrentVersion: "1" # Specify the current version of your Lambda function
         TargetVersion: "2" # Specify the version of your Lambda function to deploy
-# (Optional) In the Hooks section, specify a validation Lambda function to run during 
-# a lifecycle event. Replace "LifeCycleEvent" with BeforeAllowTraffic
-# or AfterAllowTraffic.
-#Hooks:
-#   - LifeCycleEvent: "" # Specify a Lambda validation function between double-quotes.
