@@ -1,4 +1,6 @@
 Version: 0.0
+Files:
+  - Sources: "/"
 Resources:
   - PartCallerAPIGetEvent: # Replace "MyFunction" with the name of your Lambda function
       Type: AWS::Lambda::Function
