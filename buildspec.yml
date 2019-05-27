@@ -4,12 +4,24 @@ phases:
     runtime-versions:
       python: 3.7
     commands:
+      - apt-get update -y
       - apt-get install -y python-pip zip
       - pip install --upgrade pip
+  pre-build:
+    commands:
+      - pip install virtualenv
+      - virtualenv env
+      - . env/bin/activate
       - pip install -r requirements.txt
   build:
     commands:
-      - zip -r PartCallerAPI.zip **/*.py
+      - ISO_DATE=$(date +%Y-%m-%dT%H:%M:%S%z)
+      - TMP_DIR="dist-$ISO_DATE"
+      - mkdir $TMP_DIR
+      - cp *.py $TMP_DIR
+      - cp -rf env/lib/python*/site-packages/* $TMP_DIR
+      - cd $TMP_DIR
+      - zip -r ../PartCallerAPI.zip *
 artifacts:
   files:
     - PartCallerAPI.zip
