@@ -1,10 +1,10 @@
-version: 0.0
-os: linux
-files:
-  - source: ./PartCallerAPI.zip
-    destination: /tmp
+Version: 0.0
+Os: linux
+Files:
+  - Source: ./PartCallerAPI.zip
+    Destination: /tmp
 Resources:
-  - MyFunction: # Replace "MyFunction" with the name of your Lambda function 
+  - PartCallerAPIGetEvent: # Replace "MyFunction" with the name of your Lambda function
       Type: AWS::Lambda::Function
       Properties:
         Name: "PartCallerAPIGetEvent" # Specify the name of your Lambda function
