@@ -7,7 +7,7 @@ phases:
       - apt-get update -y
       - apt-get install -y python-pip zip
       - pip install --upgrade pip
-  pre-build:
+  pre_build:
     commands:
       - pip install virtualenv
       - virtualenv env
