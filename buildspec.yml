@@ -1,10 +1,6 @@
 version: 0.2
 phases:
   install:
-    commands:
-      - aws cloudformation package --template-file partcaller-api-dev.tmpl.yml --s3-bucket partcaller-dev-pipeline --out-template-file outputSamTemplate.yml
-    artifacts:
-      type: zip
-      files:
-        - partcaller-api-dev.tmpl.yml
-        - outputSamTemplate.yml
+    - pip install -r requirements.txt
+  build:
+    - python main.py
