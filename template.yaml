@@ -2,23 +2,19 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 
 Resources:
-  PartCallerAPIEventGet:
+  PartCallerEvemts:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: api_event_get.handler
+      Handler: api_events.handler
       Runtime: python3.6
-      CodeUri: ./
-      Description: 'Lambda function to get all Events'
+      CodeUri: ./app
+      Description: 'Lambda function dealing with Events'
       MemorySize: 128
       Timeout: 30
       Role: 'arn:aws:iam::*:role/PartCallerCloudformationRole'
       Events:
-        PartCallerAPI:
+        PartCallerDevAPI:
           Type: Api
           Properties:
-            Path: '/api/event'
-            Method: get
-      Environment:
-        Variables:
-          db_username: '{{resolve:ssm:/CodeBuild/DBUser:1}}'
-          db_password: '{{resolve:ssm:/CodeBuild/DBPass:1}}'
+            Path: '/api/v1/event'
+            Method: any

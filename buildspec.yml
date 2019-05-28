@@ -15,16 +15,13 @@ phases:
       - pip install -r requirements.txt
   build:
     commands:
-      - ISO_DATE=$(date +%Y-%m-%dT%H:%M:%S%z)
-      - TMP_DIR="dist-$ISO_DATE"
-      - mkdir $TMP_DIR
-      - cp *.py $TMP_DIR
-      - cp -rf env/lib/python*/site-packages/* $TMP_DIR
-      - cd $TMP_DIR
-      - zip -r ../PartCallerAPI.zip *
+      - export $APP_DIR=app
+      - mkdir $APP_DIR
+      - mv *.py $APP_DIR
+      - cp -rf env/lib/python*/site-packages/* $APP_DIR
+      - rm -rf env .gitignore requirements.txt TestDatabase.sql
   post_build:
     commands:
-      - cd ..
       - export BUCKET=partcallerartifactbucket
       - aws cloudformation package --template-file template.yaml --s3-bucket $BUCKET --output-template-file outputtemplate.yaml --debug
 artifacts:
