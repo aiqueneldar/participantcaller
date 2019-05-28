@@ -1,12 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Parameters:
-  /CodeBuild/DBUser:
-    type: 'AWS::SSM::Parameter::Value<String>'
-    Default: ''
-  /CodeBuild/DBPass:
-    type: 'AWS::SSM::Parameter::Value<String>'
-    Default: ''
 
 Resources:
   PartCallerAPIEventGet:
@@ -27,5 +20,5 @@ Resources:
             Method: get
       Environment:
         Variables:
-          db_username: !Ref /CodeBuild/DBUser
-          db_password: !Ref /CodeBuild/DBPass
+          db_username: '{{resolve:ssm:/CodeBuild/DBUser:1}}'
+          db_password: '{{resolve:ssm-secure:/CodeBuild/DBPass:1}}'
