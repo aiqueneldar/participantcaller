@@ -20,5 +20,5 @@ Resources:
             Method: get
       Environment:
         Variables:
-          db_username: '{{resolve:ssm:/CodeBuild/DBUser:1}}'
+          db_username: '{{resolve:ssm-secure:/CodeBuild/DBUser:1}}'
           db_password: '{{resolve:ssm-secure:/CodeBuild/DBPass:1}}'
