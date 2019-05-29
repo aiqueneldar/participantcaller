@@ -70,13 +70,15 @@ def get_secret(env):
         return base64.b64decode(get_secret_value_response['SecretBinary'])
 
 
-ENV = os.getenv("env", "dev")
+ENV = os.getenv("env", "dev").lower()
 JSON_SECRET = get_secret(ENV)
 CONFIG = {}
 try:
     CONFIG = json.loads(JSON_SECRET)
 except json.JSONDecodeError as jerr:
     LOGGER.error("No config could be parsed: Error at pos " + jerr.pos + ": " + jerr.msg)
+
+LOGGER.debug(JSON_SECRET)
 
 CONN = None
 try:
