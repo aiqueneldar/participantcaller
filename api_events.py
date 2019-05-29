@@ -150,15 +150,15 @@ def handler(event, context):
         output = []
 
         for row in rows:
-            data = [str(row[0]), str(row[1]), str(row[2]), str(row[3])]
+            data = [row[0], row[1], row[2], str(row[3])]
             LOGGER.debug(str(data))
             output.append(data)
 
-        return_data = "{}"
-        try:
-            return_data = json.dumps(output)
-        except (json.JSONDecodeError, TypeError):
-            LOGGER.error("Couldn't format output to return")
+        response = {
+            "isBase64Encoded": False,
+            "statusCode": 200,
+            "body": json.dumps(output)
+        }
 
-        return return_data
+        return response
     raise ValueError('Unrecognized operation "{}"'.format(operation))
