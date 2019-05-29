@@ -13,7 +13,7 @@ phases:
       - virtualenv env
       - . env/bin/activate
       - pip install -r requirements.txt
-      - pip install pylint
+      - pip install pylint boto3
       - pylint api_events
   build:
     commands:
@@ -21,7 +21,7 @@ phases:
       - mkdir $APP_DIR
       - mv *.py $APP_DIR
       - cp -rf env/lib/python*/site-packages/* $APP_DIR
-      - rm -rf env .gitignore requirements.txt TestDatabase.sql
+      - rm -rf env .gitignore requirements.txt TestDatabase.sql .pylintrc .gitignore README.md LICENSE
   post_build:
     commands:
       - export BUCKET=partcallerartifactbucket

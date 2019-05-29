@@ -8,11 +8,11 @@ import json
 import logging
 import os
 
-import boto3  # DO NOT BUNDLE provided by AWS
-from botocore.exceptions import ClientError  # DO NOT BUNDLE provided by AWS
-
 import pymysql
 from pymysql.err import OperationalError, InternalError
+
+import boto3  # DO NOT BUNDLE provided by AWS
+from botocore.exceptions import ClientError  # DO NOT BUNDLE provided by AWS
 
 LOGGER = logging.getLogger()
 LOGGER.setLevel(logging.INFO)
