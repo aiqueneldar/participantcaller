@@ -15,7 +15,7 @@ import boto3  # DO NOT BUNDLE provided by AWS
 from botocore.exceptions import ClientError  # DO NOT BUNDLE provided by AWS
 
 LOGGER = logging.getLogger()
-LOGGER.setLevel(logging.DEBUG)
+LOGGER.setLevel(logging.INFO)
 
 
 def get_secret(env):
