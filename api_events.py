@@ -1,19 +1,28 @@
-import pymysql
-import json
-import os
-import sys
-import logging
-import boto3
-import base64
-from botocore.exceptions import ClientError
-from pymysql.err import *
+'''
+ParticipantCaller API Event handler
 
-global logger
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+Handles Event-API calls for all HTTP Verbs
+'''
+import base64
+import json
+import logging
+import os
+
+import boto3  # DO NOT BUNDLE provided by AWS
+from botocore.exceptions import ClientError  # DO NOT BUNDLE provided by AWS
+
+import pymysql
+from pymysql.err import OperationalError, InternalError
+
+LOGGER = logging.getLogger()
+LOGGER.setLevel(logging.INFO)
+
 
 def get_secret(env):
-
+    """
+    Get secret to database credentials based on ENV we are in
+    :rtype: object Either a binary (shouldn't happen) or a JSON encoded string
+    """
     secret_name = str(env) + "/partcaller/database"
     region_name = "eu-west-1"
 
@@ -30,85 +39,101 @@ def get_secret(env):
 
     try:
         get_secret_value_response = client.get_secret_value(SecretId=secret_name)
-    except ClientError as e:
-        if e.response['Error']['Code'] == 'DecryptionFailureException':
+    except ClientError as cerr:
+        #if cerr.response['Error']['Code'] == 'DecryptionFailureException':
             # Secrets Manager can't decrypt the protected secret text using the provided KMS key.
             # Deal with the exception here, and/or rethrow at your discretion.
-            raise e
-        elif e.response['Error']['Code'] == 'InternalServiceErrorException':
+            #raise cerr
+        #elif cerr.response['Error']['Code'] == 'InternalServiceErrorException':
             # An error occurred on the server side.
             # Deal with the exception here, and/or rethrow at your discretion.
-            raise e
-        elif e.response['Error']['Code'] == 'InvalidParameterException':
+            #raise cerr
+        #elif cerr.response['Error']['Code'] == 'InvalidParameterException':
             # You provided an invalid value for a parameter.
             # Deal with the exception here, and/or rethrow at your discretion.
-            raise e
-        elif e.response['Error']['Code'] == 'InvalidRequestException':
+            #raise cerr
+        #elif cerr.response['Error']['Code'] == 'InvalidRequestException':
             # You provided a parameter value that is not valid for the current state of the resource.
             # Deal with the exception here, and/or rethrow at your discretion.
-            raise e
-        elif e.response['Error']['Code'] == 'ResourceNotFoundException':
+            #raise cerr
+        #elif cerr.response['Error']['Code'] == 'ResourceNotFoundException':
             # We can't find the resource that you asked for.
             # Deal with the exception here, and/or rethrow at your discretion.
-            raise e
+            #raise cerr
+        log_string = f"Got error while retreiving sercret: {cerr}"
+        LOGGER.error(log_string)
     else:
         # Decrypts secret using the associated KMS CMK.
         # Depending on whether the secret is a string or binary, one of these fields will be populated.
         if 'SecretString' in get_secret_value_response:
             return get_secret_value_response['SecretString']
-        else:
-            return base64.b64decode(get_secret_value_response['SecretBinary'])
+        return base64.b64decode(get_secret_value_response['SecretBinary'])
 
-env = os.getenv("env", "dev")
-json_secret = get_secret(env)
-try:
-    config = json.loads(json_secret)
-except (json.JSONDecodeError) as jerr:
-    logger.error("No config could be parsed: Error at pos " + jerr.pos + ": " + jerr.msg)
 
+ENV = os.getenv("env", "dev")
+JSON_SECRET = get_secret(ENV)
+CONFIG = {}
 try:
-    conn = pymysql.connect(host=config['host'], user=config['user'], passwd=['password'], db="PartcallerDB",
+    CONFIG = json.loads(JSON_SECRET)
+except json.JSONDecodeError as jerr:
+    LOGGER.error("No config could be parsed: Error at pos " + jerr.pos + ": " + jerr.msg)
+
+CONN = None
+try:
+    CONN = pymysql.connect(host=CONFIG['host'], user=CONFIG['user'], passwd=['password'], db="PartcallerDB",
                            connect_timeout=5)
-except (pymysql.err.OperationalError, pymysql.err.InternalError) as derr:
-    logger.error("ERROR: Couldn't connect to database!")
+except (OperationalError, InternalError) as derr:
+    LOGGER.error("ERROR: Couldn't connect to database!")
     raise derr
+except KeyError as kerr:
+    LOGGER.error("No such key in config. Config seems empty!")
+    raise kerr
 
-logger.info("SUCCESS: Connection established to database")
+LOGGER.info("SUCCESS: Connection established to database")
 
-def list_events(x):
+def list_events(payload):
+    """
+    Get all events from the database and returns them all as a dictionary.
+
+    :rtype: dict Dictionaty containing all rows fetched from the database
+    """
+
+    log_string = f"Not using payload: {str(payload)}"
+    LOGGER.debug(log_string)
+
     cursor = None
     try:
-        cursor = conn.cursor()
+        cursor = CONN.cursor()
     except (OperationalError, InternalError) as err:
-        logger.error("Couldn't get database connection while listing events")
+        LOGGER.error("Couldn't get database connection while listing events")
         raise err
 
-    rows = []
+    rows = {}
     try:
         cursor.execute("SELECT * FROM Events")
         rows = cursor.fetchall()
     except (OperationalError) as err:
-        logger.error("Couldn't list all events. Problem with DB")
+        LOGGER.error("Couldn't list all events. Problem with DB")
         raise err
 
     return rows
 
 def handler(event, context):
     '''Provide an event that contains the following keys:
-
-          - operation: one of the operations in the operations dict below
-          - payload: a parameter to pass to the operation being performed
+        - operation: one of the operations in the operations dict below
+        - payload: a parameter to pass to the operation being performed
         '''
     try:
-        logger.debug("Received event: " + json.dumps(event))
+        log_string = f"Received event: {json.dumps(event)} and context: {json.dumps(context)}"
+        LOGGER.debug(log_string)
     except json.JSONDecodeError:
-        logger.debug("Couldn't print out event")
+        LOGGER.debug("Couldn't print out event")
 
     operation = ""
     try:
         operation = event.get('httpMethod')
     except KeyError as err:
-        logger.error("No operation submitted")
+        LOGGER.error("No operation submitted")
         raise err
 
     operations = {
@@ -120,5 +145,4 @@ def handler(event, context):
 
     if operation in operations:
         return operations[operation](payload)
-    else:
-        raise ValueError('Unrecognized operation "{}"'.format(operation))
+    raise ValueError('Unrecognized operation "{}"'.format(operation))
