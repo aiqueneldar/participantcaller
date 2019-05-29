@@ -8,6 +8,10 @@ import base64
 from botocore.exceptions import ClientError
 from pymysql.err import *
 
+global logger
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
 def get_secret(env):
 
     secret_name = str(env) + "/partcaller/database"
@@ -57,17 +61,17 @@ def get_secret(env):
 
 env = os.getenv("env", "dev")
 json_secret = get_secret(env)
-config = json.loads(json_secret)
-
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+try:
+    config = json.loads(json_secret)
+except (json.JSONDecodeError) as jerr:
+    logger.error("No config could be parsed: Error at pos " + jerr.pos + ": " + jerr.msg)
 
 try:
     conn = pymysql.connect(host=config['host'], user=config['user'], passwd=['password'], db="PartcallerDB",
                            connect_timeout=5)
-except:
+except (pymysql.err.OperationalError, pymysql.err.InternalError) as derr:
     logger.error("ERROR: Couldn't connect to database!")
-    sys.exit(1)
+    raise derr
 
 logger.info("SUCCESS: Connection established to database")
 
@@ -95,11 +99,14 @@ def handler(event, context):
           - operation: one of the operations in the operations dict below
           - payload: a parameter to pass to the operation being performed
         '''
-    logger.debug("Received event: " + json.dumps(event, indent=2))
+    try:
+        logger.debug("Received event: " + json.dumps(event))
+    except json.JSONDecodeError:
+        logger.debug("Couldn't print out event")
 
     operation = ""
     try:
-        operation = event['httpMethod']
+        operation = event.get('httpMethod')
     except KeyError as err:
         logger.error("No operation submitted")
         raise err
@@ -108,7 +115,9 @@ def handler(event, context):
         "GET": list_events,
     }
     payload = event.get('body', {})
-    payload = json.loads(payload)
+    if payload:
+        payload = json.loads(payload)
+
     if operation in operations:
         return operations[operation](payload)
     else:
