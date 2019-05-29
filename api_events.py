@@ -82,7 +82,7 @@ LOGGER.debug(JSON_SECRET)
 
 CONN = None
 try:
-    CONN = pymysql.connect(host=CONFIG['host'], user=CONFIG['user'], password=CONFIG['password'],
+    CONN = pymysql.connect(host=CONFIG.get('host'), user=CONFIG.get('username'), password=CONFIG.get('password'),
                            database="PartcallerDB", connect_timeout=5)
 except (OperationalError, InternalError) as derr:
     LOGGER.error("ERROR: Couldn't connect to database!")
