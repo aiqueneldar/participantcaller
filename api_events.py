@@ -126,7 +126,7 @@ def handler(event, context):
         - payload: a parameter to pass to the operation being performed
         '''
     try:
-        log_string = f"Received event: {json.dumps(event)} and context: {json.dumps(context)}"
+        log_string = f"Received event: {json.dumps(event)} and context: {str(vars(context))}"
         LOGGER.debug(log_string)
     except json.JSONDecodeError:
         LOGGER.debug("Couldn't print out event")
