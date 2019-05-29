@@ -146,5 +146,19 @@ def handler(event, context):
         payload = json.loads(payload)
 
     if operation in operations:
-        return operations[operation](payload)
+        rows = operations[operation](payload)
+        output = []
+
+        for row in rows:
+            data = [str(row[0]), str(row[1]), str(row[2]), str(row[3])]
+            LOGGER.debug(str(data))
+            output.append(data)
+
+        return_data = "{}"
+        try:
+            return_data = json.dumps(output)
+        except (json.JSONDecodeError, TypeError):
+            LOGGER.error("Couldn't format output to return")
+
+        return return_data
     raise ValueError('Unrecognized operation "{}"'.format(operation))
