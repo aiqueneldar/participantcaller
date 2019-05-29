@@ -15,7 +15,7 @@ import boto3  # DO NOT BUNDLE provided by AWS
 from botocore.exceptions import ClientError  # DO NOT BUNDLE provided by AWS
 
 LOGGER = logging.getLogger()
-LOGGER.setLevel(logging.INFO)
+LOGGER.setLevel(logging.DEBUG)
 
 
 def get_secret(env):
@@ -82,8 +82,8 @@ LOGGER.debug(JSON_SECRET)
 
 CONN = None
 try:
-    CONN = pymysql.connect(host=CONFIG['host'], user=CONFIG['user'], passwd=['password'], db="PartcallerDB",
-                           connect_timeout=5)
+    CONN = pymysql.connect(host=CONFIG['host'], user=CONFIG['user'], password=CONFIG['password'],
+                           database="PartcallerDB", connect_timeout=5)
 except (OperationalError, InternalError) as derr:
     LOGGER.error("ERROR: Couldn't connect to database!")
     raise derr
