@@ -40,6 +40,7 @@ def get_secret(env):
     try:
         get_secret_value_response = client.get_secret_value(SecretId=secret_name)
     except ClientError as cerr:
+        # Kept as a reminder.
         #if cerr.response['Error']['Code'] == 'DecryptionFailureException':
             # Secrets Manager can't decrypt the protected secret text using the provided KMS key.
             # Deal with the exception here, and/or rethrow at your discretion.
@@ -118,7 +119,92 @@ def list_events(payload):
         LOGGER.error("Couldn't list all events. Problem with DB")
         raise err
 
-    return rows
+    output = []
+
+    for row in rows:
+        data = [row[0], row[1], row[2], str(row[3])]
+        LOGGER.debug(str(data))
+        output.append(data)
+
+    return output
+
+def one_event(payload):
+    """
+    Get information about a single event.
+
+    :param payload:  event_id
+    :return: Dict with information about the event.
+    """
+    event_id = 0
+    try:
+        event_id = int(payload)
+    except ValueError:
+        LOGGER.error("Didn't get numeric Event ID.")
+
+    cursor = None
+    try:
+        cursor = CONN.cursor()
+    except (OperationalError, InternalError) as err:
+        LOGGER.error("Couldn't get database connection while listing events")
+        raise err
+
+    event = {}
+    try:
+        cursor.execute(f"SELECT * FROM Events WHERE event_id = {event_id}")
+        event = cursor.fetchone()
+    except (OperationalError) as err:
+        LOGGER.error("Couldn't list all events. Problem with DB")
+        raise err
+
+    attributes = {}
+    try:
+        cursor.execute(f"SELECT * FROM PartcallerDB.EventAttributes WHERE event_id = {event_id}")
+        attributes = cursor.fetchall()
+    except (OperationalError) as err:
+        LOGGER.error("Couldn't list all events. Problem with DB")
+        raise err
+
+    locations = {}
+    try:
+        cursor.execute(f"SELECT * FROM PartcallerDB.EventAttributes WHERE event_id = {event_id}")
+        locations = cursor.fetchall()
+    except (OperationalError) as err:
+        LOGGER.error("Couldn't list all events. Problem with DB")
+        raise err
+
+    output = {
+        "eventid": event[0],
+        "eventname": event[1],
+        "eventdone": event[2],
+        "eventupdate": str(event[3]),
+        "eventattributes": attributes,
+        "eventlocations": locations
+    }
+
+    LOGGER.debug(output)
+
+    return output
+
+
+def get_event(event):
+    """
+    Function to determine if we want to list all events, or get a specific event and its information
+    :param event: event object AWS sends us with information about the API call
+    :return: Dict data ready to be JSON serialized
+    """
+    events = {
+        "list": list_events,
+        "getevent": one_event
+    }
+
+    operation = "list"
+    payload = ""
+    if "queryStringParameters" in event:
+        if "eventid" in event.get("queryStringParameters"):
+            operation = "getevent"
+            payload = event.get("queryStringParameters").get("eventid")
+
+    return events[operation](payload)
 
 def handler(event, context):
     '''Provide an event that contains the following keys:
@@ -139,20 +225,11 @@ def handler(event, context):
         raise err
 
     operations = {
-        "GET": list_events,
+        "GET": get_event,
     }
-    payload = event.get('body', {})
-    if payload:
-        payload = json.loads(payload)
 
     if operation in operations:
-        rows = operations[operation](payload)
-        output = []
-
-        for row in rows:
-            data = [row[0], row[1], row[2], str(row[3])]
-            LOGGER.debug(str(data))
-            output.append(data)
+        output = operations[operation](event)
 
         response = {
             "isBase64Encoded": False,
