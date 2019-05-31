@@ -153,30 +153,30 @@ def get_single_event(payload):
     try:
         cursor.execute(f"SELECT * FROM Events WHERE eventID = {event_id}")
         event = cursor.fetchone()
-    except (OperationalError) as err:
-        log_string = f"Couldn't get the event with id {event_id}. Problem with DB"
+    except (OperationalError, InternalError) as err:
+        log_string = f"Couldn't get the event with id {event_id}. Problem with DB. \
+                    Error msg: {err}"
         LOGGER.error(log_string)
-        raise err
 
     attributes = {}
     try:
         cursor.execute(f"SELECT attributeID, attributeName, parentAttribute FROM\
         PartcallerDB.EventAttributes WHERE eventID = {event_id}")
         attributes = cursor.fetchall()
-    except (OperationalError) as err:
-        log_string = f"Couldn't list all event attributes from event with id {event_id}. Problem with DB"
+    except (OperationalError, InternalError) as err:
+        log_string = f"Couldn't list all event attributes from event with id {event_id}. Problem with DB. \
+                    Error msg: {err}"
         LOGGER.error(log_string)
-        raise err
 
     locations = {}
     try:
         cursor.execute(f"SELECT locationID, locationName, reusable FROM\
         PartcallerDB.EventLocations WHERE eventID = {event_id}")
         locations = cursor.fetchall()
-    except (OperationalError) as err:
-        log_string = f"Couldn't list all locations for event with id {event_id}. Problem with DB"
+    except (OperationalError, InternalError) as err:
+        log_string = f"Couldn't list all locations for event with id {event_id}. Problem with DB. \
+                    Error msg: {err}"
         LOGGER.error(log_string)
-        raise err
 
     output = {
         "eventid": event[0],
