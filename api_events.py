@@ -14,6 +14,7 @@ from pymysql.err import OperationalError, InternalError
 import boto3  # DO NOT BUNDLE provided by AWS
 from botocore.exceptions import ClientError  # DO NOT BUNDLE provided by AWS
 
+
 LOGGER = logging.getLogger()
 LOGGER.setLevel(logging.INFO)
 
@@ -94,7 +95,7 @@ except KeyError as kerr:
 
 LOGGER.info("SUCCESS: Connection established to database")
 
-def list_events(payload):
+def get_event_list(payload):
     """
     Get all events from the database and returns them all as a dictionary.
 
@@ -128,7 +129,7 @@ def list_events(payload):
 
     return output
 
-def one_event(payload):
+def get_single_event(payload):
     """
     Get information about a single event.
 
@@ -150,7 +151,7 @@ def one_event(payload):
 
     event = {}
     try:
-        cursor.execute(f"SELECT * FROM Events WHERE event_id = {event_id}")
+        cursor.execute(f"SELECT * FROM Events WHERE eventID = {event_id}")
         event = cursor.fetchone()
     except (OperationalError) as err:
         LOGGER.error("Couldn't list all events. Problem with DB")
@@ -158,7 +159,7 @@ def one_event(payload):
 
     attributes = {}
     try:
-        cursor.execute(f"SELECT * FROM PartcallerDB.EventAttributes WHERE event_id = {event_id}")
+        cursor.execute(f"SELECT * FROM PartcallerDB.EventAttributes WHERE eventID = {event_id}")
         attributes = cursor.fetchall()
     except (OperationalError) as err:
         LOGGER.error("Couldn't list all events. Problem with DB")
@@ -166,7 +167,7 @@ def one_event(payload):
 
     locations = {}
     try:
-        cursor.execute(f"SELECT * FROM PartcallerDB.EventAttributes WHERE event_id = {event_id}")
+        cursor.execute(f"SELECT * FROM PartcallerDB.EventAttributes WHERE eventID = {event_id}")
         locations = cursor.fetchall()
     except (OperationalError) as err:
         LOGGER.error("Couldn't list all events. Problem with DB")
@@ -193,15 +194,15 @@ def get_event(event):
     :return: Dict data ready to be JSON serialized
     """
     events = {
-        "list": list_events,
-        "getevent": one_event
+        "get_event_list": get_event_list,
+        "get_single_event": get_single_event
     }
 
-    operation = "list"
+    operation = "get_event_list"
     payload = ""
     if "queryStringParameters" in event:
         if "eventid" in event.get("queryStringParameters"):
-            operation = "getevent"
+            operation = "get_single_event"
             payload = event.get("queryStringParameters").get("eventid")
 
     return events[operation](payload)
