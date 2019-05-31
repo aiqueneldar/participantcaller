@@ -169,7 +169,7 @@ def get_single_event(payload):
     locations = {}
     try:
         cursor.execute(f"SELECT locationID, locationName, reusable FROM\
-        PartcallerDB.EventAttributes WHERE eventID = {event_id}")
+        PartcallerDB.EventLocations WHERE eventID = {event_id}")
         locations = cursor.fetchall()
     except (OperationalError) as err:
         LOGGER.error("Couldn't list all events. Problem with DB")
