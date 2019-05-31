@@ -154,7 +154,8 @@ def get_single_event(payload):
         cursor.execute(f"SELECT * FROM Events WHERE eventID = {event_id}")
         event = cursor.fetchone()
     except (OperationalError) as err:
-        LOGGER.error("Couldn't list all events. Problem with DB")
+        log_string = f"Couldn't get the event with id {event_id}. Problem with DB"
+        LOGGER.error(log_string)
         raise err
 
     attributes = {}
@@ -163,7 +164,8 @@ def get_single_event(payload):
         PartcallerDB.EventAttributes WHERE eventID = {event_id}")
         attributes = cursor.fetchall()
     except (OperationalError) as err:
-        LOGGER.error("Couldn't list all events. Problem with DB")
+        log_string = f"Couldn't list all event attributes from event with id {event_id}. Problem with DB"
+        LOGGER.error(log_string)
         raise err
 
     locations = {}
@@ -172,7 +174,8 @@ def get_single_event(payload):
         PartcallerDB.EventLocations WHERE eventID = {event_id}")
         locations = cursor.fetchall()
     except (OperationalError) as err:
-        LOGGER.error("Couldn't list all events. Problem with DB")
+        log_string = f"Couldn't list all locations for event with id {event_id}. Problem with DB"
+        LOGGER.error(log_string)
         raise err
 
     output = {
