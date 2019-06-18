@@ -206,10 +206,9 @@ def get_event(event):
     operation = "get_event_list"
     payload = ""
     if "queryStringParameters" in event:
-        qparameters = event.get("queryStringParameters")
-        if qparameters and "eventid" in qparameters:
+        if "eventid" in event.get("queryStringParameters"):
             operation = "get_single_event"
-            payload = qparameters.get("eventid")
+            payload = event.get("queryStringParameters").get("eventid")
 
     return events[operation](payload)
 
