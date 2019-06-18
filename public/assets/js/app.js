@@ -1,6 +1,6 @@
 
 window.addEventListener('load', () => {
-  if (!('serviceWorker' in navigator)) {
+  if (!('partcallerSW' in navigator)) {
     // service workers not supported 😣
     return
   }

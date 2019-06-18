@@ -1,11 +1,9 @@
 var CACHE_NAME = 'partcaller-cache-v1';
 var urlsToCache = [
   '/',
-  '/manifest.json',
   '/index.html',
   '/assets/css/milligram.css',
   '/assets/css/app.css',
-  '/assets/js/app.js',
   '/assets/icons/icon-144x144.png',
   '/assets/pictures/favicon.png'
 ];
@@ -26,7 +24,6 @@ addEventListener('fetch', function(event) {
     caches.match(event.request)
       .then(function(response) {
         if (response) {
-	  console.log('Used cached resource')
           return response;     // if valid response is found in cache return it
         } else {
           return fetch(event.request)     //fetch from internet
