@@ -7,10 +7,15 @@ body {
 }
 
 #content {
-  flex:1;
-  flex-direction:column;
   margin:1rem;
 
+  &>* {
+    flex: 1;
+
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+  }
 }
 
 header {
@@ -43,3 +48,18 @@ h6 {
   font-size:1rem;
 }
 
+.input--file {
+  position: relative;
+  color: #7f7f7f;
+}
+
+.input--file input[type="file"] {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+}
+
+input#SelectFile {
+  display:none;
+}
