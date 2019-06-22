@@ -432,29 +432,6 @@ UNLOCK TABLES;
 --
 
 DROP TABLE IF EXISTS `Entity_Thresholds`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `Entity_Thresholds` (
-  `thresholdID` smallint(6) NOT NULL,
-  `value` int(11) NOT NULL,
-  `entityID` bigint(20) NOT NULL,
-  PRIMARY KEY (`thresholdID`,`entityID`),
-  KEY `fkIdx_230` (`thresholdID`),
-  KEY `fkIdx_234` (`entityID`),
-  CONSTRAINT `FK_230` FOREIGN KEY (`thresholdID`) REFERENCES `Thresholds` (`thresholdID`),
-  CONSTRAINT `FK_234` FOREIGN KEY (`entityID`) REFERENCES `Entities` (`entityID`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='Keeps track of how long entities should be kept if they are abandoned.';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `Entity_Thresholds`
---
-
-LOCK TABLES `Entity_Thresholds` WRITE;
-/*!40000 ALTER TABLE `Entity_Thresholds` DISABLE KEYS */;
-INSERT INTO `Entity_Thresholds` VALUES (2,29,67),(4,863,52),(5,333,120),(6,547,148),(6,307,240),(7,994,95),(7,272,163),(8,64,263),(10,474,53),(10,56,119),(11,511,1),(12,190,87),(12,556,135),(12,497,174),(12,552,232),(13,172,233),(14,506,49),(14,742,227),(15,120,36),(15,406,78),(16,77,168),(17,833,42),(17,83,44),(17,899,57),(18,29,168),(18,446,182),(19,578,135),(20,639,89),(20,638,155),(20,345,298),(21,830,205),(22,371,125),(23,229,86),(24,811,117),(24,580,249),(25,798,55),(25,801,231),(26,988,76),(26,569,222),(26,945,295),(27,706,97),(27,773,254),(28,829,74),(34,193,169),(37,233,2),(37,243,296),(40,584,116),(42,253,250),(43,549,134),(44,138,193),(48,878,103),(48,636,112),(49,221,121),(53,30,285),(54,319,125),(55,190,92),(55,581,228),(56,277,175),(56,358,176),(58,954,85),(58,200,295),(59,166,126),(60,234,151),(61,764,45),(61,623,83),(61,21,221),(62,616,215),(63,380,226),(66,494,68),(66,244,165),(66,454,170),(67,21,155),(71,134,85),(72,683,17),(72,607,86),(74,394,18),(74,74,41),(74,935,150),(74,601,189),(75,349,112),(75,458,254),(76,774,195),(77,444,165),(78,775,113),(81,765,215),(82,505,167),(83,512,68),(85,913,97),(87,172,155),(88,495,230),(89,179,59),(91,952,241),(92,737,113),(92,845,207),(93,82,58),(97,211,185),(98,203,300),(99,478,2),(100,847,56),(100,388,154);
-/*!40000 ALTER TABLE `Entity_Thresholds` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `Event_Attributes`
@@ -518,29 +495,6 @@ UNLOCK TABLES;
 --
 
 DROP TABLE IF EXISTS `Event_Thresholds`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `Event_Thresholds` (
-  `eventID` int(11) NOT NULL,
-  `value` int(11) NOT NULL,
-  `thresholdID` smallint(6) NOT NULL,
-  PRIMARY KEY (`eventID`,`thresholdID`),
-  KEY `fkIdx_153` (`eventID`),
-  KEY `fkIdx_157` (`thresholdID`),
-  CONSTRAINT `FK_153` FOREIGN KEY (`eventID`) REFERENCES `Events` (`eventID`),
-  CONSTRAINT `FK_157` FOREIGN KEY (`thresholdID`) REFERENCES `Thresholds` (`thresholdID`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='Keeps a list of thresholds per event and their value.';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `Event_Thresholds`
---
-
-LOCK TABLES `Event_Thresholds` WRITE;
-/*!40000 ALTER TABLE `Event_Thresholds` DISABLE KEYS */;
-INSERT INTO `Event_Thresholds` VALUES (1,148,26),(1,45,43),(1,51,85),(3,40,28),(3,141,80),(4,159,97),(5,45,85),(9,37,73),(10,109,92),(13,174,1),(13,44,60),(14,83,38),(16,168,59),(17,186,39),(17,30,47),(19,98,92),(20,153,83),(21,136,23),(21,152,45),(23,58,43),(23,150,68),(24,61,11),(24,48,20),(26,124,54),(26,75,70),(28,35,2),(31,106,14),(31,24,18),(34,79,63),(34,65,100),(35,118,64),(35,120,73),(36,69,73),(39,58,13),(39,49,15),(40,57,60),(40,129,98),(41,147,44),(42,99,57),(45,185,80),(47,87,20),(47,77,86),(48,121,92),(49,107,64),(51,122,95),(52,192,4),(52,30,23),(53,147,28),(54,38,47),(54,57,49),(54,105,99),(55,189,1),(55,190,20),(56,31,44),(57,45,16),(58,49,11),(59,29,83),(60,183,7),(61,129,7),(61,123,26),(61,118,55),(62,87,65),(63,162,92),(65,83,19),(65,33,88),(67,152,34),(67,104,56),(67,164,68),(67,70,87),(68,143,37),(68,129,54),(69,181,4),(69,50,63),(70,124,3),(72,148,64),(73,121,35),(76,87,35),(77,131,99),(78,165,78),(79,188,13),(80,70,30),(80,118,68),(81,129,42),(83,179,57),(85,53,7),(85,111,21),(88,39,96),(89,95,27),(90,177,40),(91,56,37),(91,124,69),(92,108,46),(92,160,80),(94,35,70),(94,50,99),(95,126,20),(95,74,46),(96,112,69),(99,177,20),(100,88,36);
-/*!40000 ALTER TABLE `Event_Thresholds` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `Events`
@@ -652,25 +606,6 @@ UNLOCK TABLES;
 --
 
 DROP TABLE IF EXISTS `Thresholds`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `Thresholds` (
-  `thresholdID` smallint(6) NOT NULL AUTO_INCREMENT,
-  `thresholdName` varchar(45) NOT NULL,
-  `thresholdDescription` text NOT NULL,
-  PRIMARY KEY (`thresholdID`)
-) ENGINE=InnoDB AUTO_INCREMENT=101 DEFAULT CHARSET=latin1 COMMENT='Different thresholds and their definitions.';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `Thresholds`
---
-
-LOCK TABLES `Thresholds` WRITE;
-/*!40000 ALTER TABLE `Thresholds` DISABLE KEYS */;
-INSERT INTO `Thresholds` VALUES (1,'scelerisque sed,','sapien, cursus in, hendrerit consectetuer, cursus et, magna. Praesent interdum'),(2,'id','Proin velit. Sed malesuada augue ut lacus.'),(3,'sed','Aliquam adipiscing lobortis risus. In mi pede,'),(4,'adipiscing lobortis','tristique ac, eleifend vitae, erat.'),(5,'tristique','luctus. Curabitur egestas nunc sed libero.'),(6,'quis, pede.','dolor dapibus gravida. Aliquam tincidunt, nunc ac'),(7,'vitae, orci.','Nunc ullamcorper, velit in aliquet'),(8,'Suspendisse','sollicitudin commodo ipsum. Suspendisse non leo. Vivamus nibh'),(9,'volutpat. Nulla','nibh. Quisque nonummy ipsum non arcu.'),(10,'varius.','quis turpis vitae purus gravida sagittis. Duis gravida.'),(11,'porttitor tellus','diam lorem, auctor quis, tristique ac, eleifend vitae, erat. Vivamus'),(12,'Curae;','consectetuer adipiscing elit. Aliquam auctor, velit eget'),(13,'pede,','mauris, aliquam eu, accumsan sed, facilisis vitae, orci. Phasellus'),(14,'montes,','vulputate eu, odio. Phasellus at augue id ante'),(15,'orci luctus','dui nec urna suscipit nonummy. Fusce fermentum fermentum'),(16,'nibh.','Vivamus euismod urna. Nullam lobortis quam a felis'),(17,'nulla. Integer','egestas a, dui. Cras pellentesque. Sed dictum.'),(18,'arcu.','Suspendisse non leo. Vivamus nibh dolor, nonummy ac, feugiat non,'),(19,'iaculis','erat. Etiam vestibulum massa rutrum magna. Cras convallis convallis dolor.'),(20,'Nam ac','lectus rutrum urna, nec luctus felis purus ac'),(21,'semper','urna et arcu imperdiet ullamcorper. Duis at'),(22,'Quisque','sit amet lorem semper auctor. Mauris vel'),(23,'interdum. Nunc','ac orci. Ut semper pretium neque. Morbi quis urna.'),(24,'egestas a,','sit amet ante. Vivamus non lorem vitae odio sagittis semper.'),(25,'et ultrices','Nunc quis arcu vel quam dignissim pharetra. Nam ac'),(26,'mi lorem,','est arcu ac orci. Ut semper pretium'),(27,'odio vel','urna justo faucibus lectus, a sollicitudin orci sem'),(28,'Integer','ante. Nunc mauris sapien, cursus in, hendrerit consectetuer, cursus et,'),(29,'ac turpis','ante lectus convallis est, vitae'),(30,'laoreet','nibh. Phasellus nulla. Integer vulputate, risus a ultricies adipiscing,'),(31,'mattis ornare,','ipsum. Suspendisse non leo. Vivamus nibh dolor, nonummy ac, feugiat'),(32,'aliquet,','dui, semper et, lacinia vitae, sodales at, velit. Pellentesque ultricies'),(33,'amet, dapibus','faucibus. Morbi vehicula. Pellentesque tincidunt'),(34,'ullamcorper.','Quisque fringilla euismod enim. Etiam gravida molestie arcu. Sed eu'),(35,'Donec non','ornare tortor at risus. Nunc ac sem'),(36,'a,','ultrices sit amet, risus. Donec nibh enim,'),(37,'non, cursus','Lorem ipsum dolor sit amet, consectetuer adipiscing'),(38,'lacinia mattis.','Suspendisse tristique neque venenatis lacus. Etiam bibendum fermentum metus. Aenean'),(39,'sit amet','eu dui. Cum sociis natoque penatibus et magnis dis parturient'),(40,'consequat','Quisque fringilla euismod enim. Etiam'),(41,'Praesent','sit amet orci. Ut sagittis lobortis mauris. Suspendisse aliquet'),(42,'tempus, lorem','ac libero nec ligula consectetuer rhoncus. Nullam velit dui, semper'),(43,'sociis natoque','ac tellus. Suspendisse sed dolor.'),(44,'Cum sociis','nisl sem, consequat nec, mollis vitae, posuere at, velit. Cras'),(45,'tristique aliquet.','placerat, orci lacus vestibulum lorem, sit amet ultricies sem magna'),(46,'luctus et','varius. Nam porttitor scelerisque neque. Nullam nisl.'),(47,'nibh. Donec','elit. Etiam laoreet, libero et tristique'),(48,'dignissim','mauris ut mi. Duis risus odio, auctor vitae,'),(49,'neque.','risus. Quisque libero lacus, varius et,'),(50,'In','nisl elementum purus, accumsan interdum'),(51,'Phasellus','luctus et ultrices posuere cubilia Curae; Donec'),(52,'Nulla','dolor elit, pellentesque a, facilisis non, bibendum'),(53,'tortor','purus, in molestie tortor nibh sit amet'),(54,'lacus.','pellentesque a, facilisis non, bibendum sed, est.'),(55,'amet,','et, rutrum eu, ultrices sit amet, risus. Donec'),(56,'nonummy','sem. Nulla interdum. Curabitur dictum. Phasellus in felis.'),(57,'purus. Nullam','In ornare sagittis felis. Donec'),(58,'scelerisque','non enim commodo hendrerit. Donec porttitor tellus non magna. Nam'),(59,'ipsum porta','enim. Suspendisse aliquet, sem ut cursus luctus, ipsum leo elementum'),(60,'quam','dictum eu, placerat eget, venenatis a, magna. Lorem ipsum dolor'),(61,'magnis','dui. Cum sociis natoque penatibus et magnis dis parturient'),(62,'vulputate dui,','elementum purus, accumsan interdum libero dui nec'),(63,'Curae;','posuere vulputate, lacus. Cras interdum. Nunc sollicitudin commodo ipsum.'),(64,'nec','Phasellus dapibus quam quis diam. Pellentesque'),(65,'penatibus et','commodo tincidunt nibh. Phasellus nulla.'),(66,'rutrum urna,','justo eu arcu. Morbi sit amet massa. Quisque porttitor'),(67,'ipsum. Suspendisse','fringilla est. Mauris eu turpis. Nulla'),(68,'inceptos','arcu. Vivamus sit amet risus. Donec egestas. Aliquam'),(69,'felis.','nec mauris blandit mattis. Cras'),(70,'vestibulum nec,','eu neque pellentesque massa lobortis ultrices.'),(71,'sit amet','Suspendisse non leo. Vivamus nibh dolor, nonummy'),(72,'ut','Aliquam ultrices iaculis odio. Nam'),(73,'sagittis.','vulputate eu, odio. Phasellus at'),(74,'viverra.','Integer in magna. Phasellus dolor'),(75,'Ut semper','pede et risus. Quisque libero lacus, varius et, euismod'),(76,'magna nec','Donec nibh enim, gravida sit amet, dapibus'),(77,'posuere vulputate,','libero lacus, varius et, euismod'),(78,'non, feugiat','Quisque porttitor eros nec tellus. Nunc lectus'),(79,'Duis risus','Fusce diam nunc, ullamcorper eu, euismod ac, fermentum vel,'),(80,'dui lectus','eu enim. Etiam imperdiet dictum magna.'),(81,'varius','molestie tellus. Aenean egestas hendrerit neque. In ornare sagittis'),(82,'Donec','pellentesque massa lobortis ultrices. Vivamus rhoncus.'),(83,'Vestibulum ante','vitae odio sagittis semper. Nam tempor diam'),(84,'massa. Integer','ipsum. Curabitur consequat, lectus sit amet'),(85,'sed','Proin velit. Sed malesuada augue ut lacus. Nulla tincidunt, neque'),(86,'quis','enim. Etiam imperdiet dictum magna. Ut'),(87,'netus','aliquam, enim nec tempus scelerisque, lorem'),(88,'neque.','mauris. Integer sem elit, pharetra ut,'),(89,'sit','dolor quam, elementum at, egestas a,'),(90,'mi','non magna. Nam ligula elit, pretium et, rutrum non,'),(91,'In ornare','magna. Nam ligula elit, pretium et, rutrum non, hendrerit id,'),(92,'ultrices iaculis','velit egestas lacinia. Sed congue, elit'),(93,'eget,','Nunc laoreet lectus quis massa.'),(94,'nec tempus','lobortis. Class aptent taciti sociosqu ad litora torquent'),(95,'ligula.','enim nisl elementum purus, accumsan interdum'),(96,'mauris','ligula tortor, dictum eu, placerat eget, venenatis'),(97,'sociis natoque','dui quis accumsan convallis, ante'),(98,'scelerisque, lorem','blandit viverra. Donec tempus, lorem'),(99,'Quisque','arcu vel quam dignissim pharetra. Nam ac nulla. In'),(100,'magnis dis','fermentum vel, mauris. Integer sem elit, pharetra ut,');
-/*!40000 ALTER TABLE `Thresholds` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Dumping routines for database 'PartcallerTest'
