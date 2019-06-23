@@ -1,4 +1,11 @@
 
+a {
+  color:#606c76;
+  &:visited {
+    color:#606c76;
+  }
+}
+
 body {
   display:flex;
   height:100vh;
@@ -16,6 +23,10 @@ body {
     justify-content: center;
     flex-direction: column;
   }
+}
+
+form {
+  margin:0;
 }
 
 header {
