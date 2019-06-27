@@ -144,7 +144,7 @@ def get_single_event(payload):
 
     cursor = None
     try:
-        cursor = CONN.cursor()
+        cursor = CONN.cursor(pymysql.cursors.DictCursor)
     except (OperationalError, InternalError) as err:
         LOGGER.error("Couldn't get database connection while listing events")
         raise err
@@ -178,14 +178,10 @@ def get_single_event(payload):
                     Error msg: {err}"
         LOGGER.error(log_string)
 
-    output = {
-        "eventid": event[0],
-        "eventname": event[1],
-        "eventdone": event[2],
-        "eventupdate": str(event[3]),
-        "eventattributes": attributes,
-        "eventlocations": locations
-    }
+    output = event
+    output["lastUpdate"] = str(event["lastUpdate"])
+    output["eventAttributes"] = attributes
+    output["eventLocations"] = locations
 
     LOGGER.debug(output)
 
