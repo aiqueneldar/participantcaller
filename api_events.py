@@ -7,6 +7,7 @@ import base64
 import json
 import logging
 import os
+import sys
 
 import pymysql
 from pymysql.err import OperationalError, InternalError
@@ -14,10 +15,17 @@ from pymysql.err import OperationalError, InternalError
 import boto3  # DO NOT BUNDLE provided by AWS
 from botocore.exceptions import ClientError  # DO NOT BUNDLE provided by AWS
 
-
+# Setup logging as we want it
 LOGGER = logging.getLogger()
 LOGGER.setLevel(logging.INFO)
+FORMAT = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+HANDLER = logging.Handler(logging.StreamHandler(sys.stdout))
+HANDLER.setFormatter(FORMAT)
 
+for curr_handler in LOGGER.handlers:
+    LOGGER.removeHandler(curr_handler)
+
+LOGGER.addHandler(HANDLER)
 
 def get_secret(env):
     """
@@ -62,7 +70,7 @@ def get_secret(env):
             # We can't find the resource that you asked for.
             # Deal with the exception here, and/or rethrow at your discretion.
             #raise cerr
-        log_string = f"Got error while retreiving sercret: {cerr}"
+        log_string = f"Got error while retrieving secret: {cerr}"
         LOGGER.error(log_string)
     else:
         # Decrypts secret using the associated KMS CMK.
@@ -99,7 +107,7 @@ def get_event_list(payload):
     """
     Get all events from the database and returns them all as a dictionary.
 
-    :rtype: dict Dictionaty containing all rows fetched from the database
+    :rtype: dict Dictionary containing all rows fetched from the database
     """
 
     log_string = f"Not using payload: {str(payload)}"
@@ -136,6 +144,7 @@ def get_single_event(payload):
     :param payload:  event_id
     :return: Dict with information about the event.
     """
+
     event_id = 0
     try:
         event_id = int(payload)
@@ -183,7 +192,7 @@ def get_single_event(payload):
 
     LOGGER.debug(output)
 
-    return output
+    return (200, output)
 
 
 def get_event(event):
@@ -205,7 +214,83 @@ def get_event(event):
             operation = "get_single_event"
             payload = qparameters.get("eventid")
 
-    return events[operation](payload)
+    return (200, events[operation](payload))
+
+def post_event(event):
+    """
+    Function to create a new event. Expects JSON encoded data with event details.
+    :param event: event object AWS sends us with information about the API call
+    :return: HTTP response codes
+    """
+
+    # Check to see that we have POST data at all
+    if "httpMethod" in event and event["httpMethod"] == "POST":
+        body = event.get("body", "{}")
+        # Try to load the data as JSON, that is what we expect. Should be event name, attributes and locations.
+        try:
+            data = json.loads(body)
+            event_data = data["event"]
+            event_attributes = data["attributes"]
+            event_locations = data["locations"]
+        except json.JSONDecodeError as jerr:
+            LOGGER.error("Could not get data from POST body. Got error: %s", jerr.msg)
+            raise jerr
+        except KeyError as kerr:
+            LOGGER.error("Could not find all necessary keys in data provided. Error: %s", kerr)
+            raise kerr
+
+        # Start by creating a new event so we get the new event ID
+        cursor = CONN.cursor()
+        try:
+            cursor.callproc('create_new_event', event_data['name'])
+            CONN.commit()
+            event_id = cursor.lastrowid
+        except pymysql.IntegrityError as db_err:
+            LOGGER.error("Integrity Error in database when trying to add new event [%s], error: %s",
+                         event_data['name'], db_err)
+            return (409, '{"status": "Already exists"}') # HTTP Code 409 mean 'conflict'
+        except pymysql.Error as db_err:
+            LOGGER.error("Database returned error when creating new event: %s", db_err)
+            return (500, '{"status": "Internal Error"}')
+        except KeyError as kerr:
+            LOGGER.error("Missing key in data. Couldn't complete creation of new event: %s", kerr)
+            return (404, '{"status": "Missing data in request"}')
+
+        # Then populate the attributes of the event
+        try:
+            for curr_attribute in event_attributes:
+                cursor.callproc('create_new_event_attributes', event_id, curr_attribute['attribute_id'],
+                                curr_attribute['attribute_value'])
+            CONN.commit()
+        except pymysql.IntegrityError as db_err:
+            LOGGER.error("Integrity Error in database when trying to add attributes to the new Event "
+                         "[%s], error: %s", event_data['name'], db_err)
+            return (409, '{"status": "Attribute already exists"}') # HTTP Code 409 mean 'conflict'
+        except pymysql.Error as db_err:
+            LOGGER.error("Database returned error when populating event with attributes: %s", db_err)
+            return (500, '{"status": "Internal Error"}')
+        except KeyError as kerr:
+            LOGGER.error("Missing key in data. Couldn't complete population of attributes to new event: %s", kerr)
+            return (404, '{"status": "Missing data in request"}')
+
+        try:
+            for curr_location in event_locations:
+                cursor.callproc('create_new_event_locations', event_id, curr_location['location_id'])
+                CONN.commit()
+        except pymysql.IntegrityError as db_err:
+            LOGGER.error("Integrity Error in database when trying to add locations to the new Event "
+                         "[%s], error: %s", event_data['name'], db_err)
+            return (409, '{"status": "Location already exists"}') # HTTP Code 409 mean 'conflict'
+        except pymysql.Error as db_err:
+            LOGGER.error("Database returned error when populating event with locations: %s", db_err)
+            return (500, '{"status": "Internal Error"}')
+        except KeyError as kerr:
+            LOGGER.error("Missing key in data. Couldn't complete population of locations to new event: %s", kerr)
+            return (404, '{"status": "Missing data in request"}')
+
+        return (201, '{"status": "Created"}')  # HTTP Code 201 mean 'created'
+
+    return (404, '{"status": "No POST Data found"}')
 
 def handler(event, context):
     '''Provide an event that contains the following keys:
@@ -234,8 +319,8 @@ def handler(event, context):
 
         response = {
             "isBase64Encoded": False,
-            "statusCode": 200,
-            "body": json.dumps(output)
+            "statusCode": output[0],
+            "body": json.dumps(output[1])
         }
 
         return response
