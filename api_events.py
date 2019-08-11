@@ -1,8 +1,8 @@
-'''
+"""
 ParticipantCaller API Event handler
 
 Handles Event-API calls for all HTTP Verbs
-'''
+"""
 import base64
 import json
 import logging
@@ -27,6 +27,7 @@ for curr_handler in LOGGER.handlers:
 
 LOGGER.addHandler(HANDLER)
 
+
 def get_secret(env):
     """
     Get secret to database credentials based on ENV we are in
@@ -50,26 +51,26 @@ def get_secret(env):
         get_secret_value_response = client.get_secret_value(SecretId=secret_name)
     except ClientError as cerr:
         # Kept as a reminder.
-        #if cerr.response['Error']['Code'] == 'DecryptionFailureException':
-            # Secrets Manager can't decrypt the protected secret text using the provided KMS key.
-            # Deal with the exception here, and/or rethrow at your discretion.
-            #raise cerr
-        #elif cerr.response['Error']['Code'] == 'InternalServiceErrorException':
-            # An error occurred on the server side.
-            # Deal with the exception here, and/or rethrow at your discretion.
-            #raise cerr
-        #elif cerr.response['Error']['Code'] == 'InvalidParameterException':
-            # You provided an invalid value for a parameter.
-            # Deal with the exception here, and/or rethrow at your discretion.
-            #raise cerr
-        #elif cerr.response['Error']['Code'] == 'InvalidRequestException':
-            # You provided a parameter value that is not valid for the current state of the resource.
-            # Deal with the exception here, and/or rethrow at your discretion.
-            #raise cerr
-        #elif cerr.response['Error']['Code'] == 'ResourceNotFoundException':
-            # We can't find the resource that you asked for.
-            # Deal with the exception here, and/or rethrow at your discretion.
-            #raise cerr
+        # if cerr.response['Error']['Code'] == 'DecryptionFailureException':
+        #   # Secrets Manager can't decrypt the protected secret text using the provided KMS key.
+        #   # Deal with the exception here, and/or rethrow at your discretion.
+        #   #raise cerr
+        # elif cerr.response['Error']['Code'] == 'InternalServiceErrorException':
+        #   # An error occurred on the server side.
+        #   # Deal with the exception here, and/or rethrow at your discretion.
+        #   #raise cerr
+        # elif cerr.response['Error']['Code'] == 'InvalidParameterException':
+        #   # You provided an invalid value for a parameter.
+        #   # Deal with the exception here, and/or rethrow at your discretion.
+        #   #raise cerr
+        # elif cerr.response['Error']['Code'] == 'InvalidRequestException':
+        #   # You provided a parameter value that is not valid for the current state of the resource.
+        #   # Deal with the exception here, and/or rethrow at your discretion.
+        #   #raise cerr
+        # elif cerr.response['Error']['Code'] == 'ResourceNotFoundException':
+        #   # We can't find the resource that you asked for.
+        #   # Deal with the exception here, and/or rethrow at your discretion.
+        #   #raise cerr
         log_string = f"Got error while retrieving secret: {cerr}"
         LOGGER.error(log_string)
     else:
@@ -103,6 +104,7 @@ except KeyError as kerr:
 
 LOGGER.info("SUCCESS: Connection established to database")
 
+
 def get_event_list(payload):
     """
     Get all events from the database and returns them all as a dictionary.
@@ -113,18 +115,16 @@ def get_event_list(payload):
     log_string = f"Not using payload: {str(payload)}"
     LOGGER.debug(log_string)
 
-    cursor = None
     try:
         cursor = CONN.cursor()
     except (OperationalError, InternalError) as err:
         LOGGER.error("Couldn't get database connection while listing events")
         raise err
 
-    rows = {}
     try:
         cursor.execute("SELECT * FROM Events")
         rows = cursor.fetchall()
-    except (OperationalError) as err:
+    except OperationalError as err:
         LOGGER.error("Couldn't list all events. Problem with DB")
         raise err
 
@@ -136,6 +136,7 @@ def get_event_list(payload):
         output.append(data)
 
     return output
+
 
 def get_single_event(payload):
     """
@@ -151,7 +152,6 @@ def get_single_event(payload):
     except ValueError:
         LOGGER.error("Didn't get numeric Event ID.")
 
-    cursor = None
     try:
         cursor = CONN.cursor(pymysql.cursors.DictCursor)
     except (OperationalError, InternalError) as err:
@@ -192,7 +192,7 @@ def get_single_event(payload):
 
     LOGGER.debug(output)
 
-    return (200, output)
+    return 200, output
 
 
 def get_event(event):
@@ -214,7 +214,92 @@ def get_event(event):
             operation = "get_single_event"
             payload = qparameters.get("eventid")
 
-    return (200, events[operation](payload))
+    return 200, events[operation](payload)
+
+
+def create_event(event_data: dict) -> tuple:
+    """
+    Executes database stored procuedure to create event. And handles creation errors
+    :rtype: tuple
+    :param event_data: Dcit containeing the data needed to create the event
+    :return: Tuple consisting, of status code and dict with data payload
+    """
+    cursor = CONN.cursor()
+    try:
+        cursor.callproc('create_new_event', event_data['name'])
+        CONN.commit()
+        event_id = cursor.lastrowid
+    except pymysql.IntegrityError as db_err:
+        LOGGER.error("Integrity Error in database when trying to add new event [{}], error: {}",
+                     event_data['name'], db_err)
+        return 409, {"status": "Already exists"}  # HTTP Code 409 mean 'conflict'
+    except pymysql.Error as db_err:
+        LOGGER.error("Database returned error when creating new event: {}", db_err)
+        return 500, {"status": "Internal Error"}
+    except KeyError as kerr:
+        LOGGER.error("Missing key in data. Couldn't complete creation of new event: {}", kerr)
+        return 404, {"status": "Missing data in request"}
+
+    return 200, {"status": "Success", "event_id": event_id}
+
+
+def create_attributes(event_data: dict, event_attributes: dict, event_id: int) -> tuple:
+    """
+    Executes stored procedure in database to set attributes for the newly created event
+    :rtype: tuple
+    :param event_data: Dict with data regarding the event
+    :param event_attributes: Data regarding attributes this event should have
+    :param event_id: Integer of the new event id created for the event
+    :return: Tuple with status code and dict with data payload
+    """
+    cursor = CONN.cursor()
+    try:
+        for curr_attribute in event_attributes:
+            cursor.callproc('create_new_event_attributes', event_id, curr_attribute['attribute_id'],
+                            curr_attribute['attribute_value'])
+        CONN.commit()
+    except pymysql.IntegrityError as db_err:
+        LOGGER.error("Integrity Error in database when trying to add attributes to the new Event "
+                     "[{}], error: {}", event_data['name'], db_err)
+        return 409, {"status": "Attribute already exists"}  # HTTP Code 409 mean 'conflict'
+    except pymysql.Error as db_err:
+        LOGGER.error("Database returned error when populating event with attributes: {}", db_err)
+        return 500, {"status": "Internal Error"}
+    except KeyError as kerr:
+        LOGGER.error("Missing key in data. Couldn't complete population of attributes to new event: {}", kerr)
+        return 404, {"status": "Missing data in request"}
+
+    return 200, {"status": "Success"}
+
+
+def create_locations(event_data: dict, event_locations: dict, event_id: int) -> tuple:
+    """
+    Executes stored precedure in database that sets the event's locations
+    :rtype: tuple
+    :param event_data: Dict with data regarding the event
+    :param event_locations: Data regarding locations this event should have
+    :param event_id: Integer of the new event id created for the event
+    :return: Tuple with status code and dict with data payload
+    """
+    cursor = CONN.cursor()
+    try:
+        for curr_location in event_locations:
+            cursor.callproc('create_new_event_locations', event_id, curr_location['location_id'])
+            CONN.commit()
+    except pymysql.IntegrityError as db_err:
+        LOGGER.error("Integrity Error in database when trying to add locations to the new Event "
+                     "[{}], error: {}", event_data['name'], db_err)
+        return 409, {"status": "Location already exists"}  # HTTP Code 409 mean 'conflict'
+    except pymysql.Error as db_err:
+        LOGGER.error("Database returned error when populating event with locations: {}", db_err)
+        return 500, {"status": "Internal Error"}
+
+    except KeyError as kerr:
+        LOGGER.error("Missing key in data. Couldn't complete population of locations to new event: {}", kerr)
+        return 404, {"status": "Missing data in request"}
+
+    return 200, {"status": "Success"}
+
 
 def post_event(event):
     """
@@ -223,9 +308,13 @@ def post_event(event):
     :return: HTTP response codes
     """
 
+    # Assume something went wrong and correct only if we succeed
+    output = {}
+
     # Check to see that we have POST data at all
     if "httpMethod" in event and event["httpMethod"] == "POST":
         body = event.get("body", "{}")
+
         # Try to load the data as JSON, that is what we expect. Should be event name, attributes and locations.
         try:
             data = json.loads(body)
@@ -233,77 +322,41 @@ def post_event(event):
             event_attributes = data["attributes"]
             event_locations = data["locations"]
         except json.JSONDecodeError as jerr:
-            LOGGER.error("Could not get data from POST body. Got error: %s", jerr.msg)
+            LOGGER.error("Could not get data from POST body. Got error: {}", jerr.msg)
             raise jerr
         except KeyError as kerr:
-            LOGGER.error("Could not find all necessary keys in data provided. Error: %s", kerr)
+            LOGGER.error("Could not find all necessary keys in data provided. Error: {}", kerr)
             raise kerr
 
         # Start by creating a new event so we get the new event ID
-        cursor = CONN.cursor()
-        try:
-            cursor.callproc('create_new_event', event_data['name'])
-            CONN.commit()
-            event_id = cursor.lastrowid
-        except pymysql.IntegrityError as db_err:
-            LOGGER.error("Integrity Error in database when trying to add new event [%s], error: %s",
-                         event_data['name'], db_err)
-            return (409, '{"status": "Already exists"}') # HTTP Code 409 mean 'conflict'
-        except pymysql.Error as db_err:
-            LOGGER.error("Database returned error when creating new event: %s", db_err)
-            return (500, '{"status": "Internal Error"}')
-        except KeyError as kerr:
-            LOGGER.error("Missing key in data. Couldn't complete creation of new event: %s", kerr)
-            return (404, '{"status": "Missing data in request"}')
+        output["event"] = create_event(event_data)
+        event_id = output["event"][1]["event_id"]
 
         # Then populate the attributes of the event
-        try:
-            for curr_attribute in event_attributes:
-                cursor.callproc('create_new_event_attributes', event_id, curr_attribute['attribute_id'],
-                                curr_attribute['attribute_value'])
-            CONN.commit()
-        except pymysql.IntegrityError as db_err:
-            LOGGER.error("Integrity Error in database when trying to add attributes to the new Event "
-                         "[%s], error: %s", event_data['name'], db_err)
-            return (409, '{"status": "Attribute already exists"}') # HTTP Code 409 mean 'conflict'
-        except pymysql.Error as db_err:
-            LOGGER.error("Database returned error when populating event with attributes: %s", db_err)
-            return (500, '{"status": "Internal Error"}')
-        except KeyError as kerr:
-            LOGGER.error("Missing key in data. Couldn't complete population of attributes to new event: %s", kerr)
-            return (404, '{"status": "Missing data in request"}')
+        output["attributes"] = create_attributes(event_data, event_attributes, event_id)
 
-        try:
-            for curr_location in event_locations:
-                cursor.callproc('create_new_event_locations', event_id, curr_location['location_id'])
-                CONN.commit()
-        except pymysql.IntegrityError as db_err:
-            LOGGER.error("Integrity Error in database when trying to add locations to the new Event "
-                         "[%s], error: %s", event_data['name'], db_err)
-            return (409, '{"status": "Location already exists"}') # HTTP Code 409 mean 'conflict'
-        except pymysql.Error as db_err:
-            LOGGER.error("Database returned error when populating event with locations: %s", db_err)
-            return (500, '{"status": "Internal Error"}')
-        except KeyError as kerr:
-            LOGGER.error("Missing key in data. Couldn't complete population of locations to new event: %s", kerr)
-            return (404, '{"status": "Missing data in request"}')
+        # Lastly populate locations
+        output["locations"] = create_locations(event_data, event_locations, event_id)
 
-        return (201, '{"status": "Created"}')  # HTTP Code 201 mean 'created'
+        for value in output.values():
+            if value[0] != 200:
+                return_data = (value[0], json.dumps(value[1]))
+                return return_data
 
-    return (404, '{"status": "No POST Data found"}')
+    return 201, '{"status": "Created"}'  # HTTP Code 201 mean 'created'
+
 
 def handler(event, context):
-    '''Provide an event that contains the following keys:
+    """Provide an event that contains the following keys:
         - operation: one of the operations in the operations dict below
         - payload: a parameter to pass to the operation being performed
-        '''
+        """
     try:
         log_string = f"Received event: {json.dumps(event)} and context: {str(vars(context))}"
         LOGGER.debug(log_string)
     except json.JSONDecodeError:
         LOGGER.debug("Couldn't print out event")
 
-    operation = ""
     try:
         operation = event.get('httpMethod')
     except KeyError as err:
