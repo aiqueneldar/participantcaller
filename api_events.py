@@ -365,6 +365,7 @@ def handler(event, context):
 
     operations = {
         "GET": get_event,
+        "POST": post_event
     }
 
     if operation in operations:
