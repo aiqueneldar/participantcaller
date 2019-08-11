@@ -257,8 +257,8 @@ def create_attributes(event_data: dict, event_attributes: dict, event_id: int) -
     cursor = CONN.cursor()
     try:
         for curr_attribute in event_attributes:
-            cursor.callproc('create_new_event_attributes', event_id, curr_attribute['attribute_id'],
-                            curr_attribute['attribute_value'])
+            cursor.callproc('create_new_event_attributes',
+                            (event_id, curr_attribute['attribute_id'], curr_attribute['attribute_value']))
         CONN.commit()
     except pymysql.IntegrityError as db_err:
         LOGGER.error("Integrity Error in database when trying to add attributes to the new Event "
@@ -286,7 +286,7 @@ def create_locations(event_data: dict, event_locations: dict, event_id: int) -> 
     cursor = CONN.cursor()
     try:
         for curr_location in event_locations:
-            cursor.callproc('create_new_event_locations', event_id, curr_location['location_id'])
+            cursor.callproc('create_new_event_locations', (event_id, curr_location['location_id']))
             CONN.commit()
     except pymysql.IntegrityError as db_err:
         LOGGER.error("Integrity Error in database when trying to add locations to the new Event "
