@@ -226,7 +226,9 @@ def create_event(event_data: dict) -> tuple:
     """
     cursor = CONN.cursor()
     try:
-        cursor.callproc('create_new_event', event_data['name'])
+        LOGGER.debug("Creating event named {}", event_data['name'])
+        name = f"'{event_data['name']}'"
+        cursor.callproc('create_new_event', name)
         CONN.commit()
         event_id = cursor.lastrowid
     except pymysql.IntegrityError as db_err:
