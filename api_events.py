@@ -20,7 +20,7 @@ LOGGER = logging.getLogger()
 FORMAT = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
 HANDLER = logging.StreamHandler(sys.stdout)
 HANDLER.setFormatter(FORMAT)
-HANDLER.setLevel(logging.INFO)
+HANDLER.setLevel(logging.DEBUG)
 
 for curr_handler in LOGGER.handlers:
     LOGGER.removeHandler(curr_handler)
@@ -257,6 +257,8 @@ def create_attributes(event_data: dict, event_attributes: dict, event_id: int) -
     cursor = CONN.cursor()
     try:
         for curr_attribute in event_attributes:
+            LOGGER.debug("Event ID {} attribute ID {} value {}", event_id, curr_attribute['attribute_id'],
+                         curr_attribute['attribute_value'])
             cursor.callproc('create_new_event_attributes',
                             (event_id, curr_attribute['attribute_id'], curr_attribute['attribute_value']))
         CONN.commit()
@@ -333,6 +335,7 @@ def post_event(event):
         # Start by creating a new event so we get the new event ID
         output["event"] = create_event(event_data)
         event_id = output["event"][1]["event_id"]
+        LOGGER.debug("New event got ID {}", event_id)
 
         # Then populate the attributes of the event
         output["attributes"] = create_attributes(event_data, event_attributes, event_id)
