@@ -17,10 +17,10 @@ from botocore.exceptions import ClientError  # DO NOT BUNDLE provided by AWS
 
 # Setup logging as we want it
 LOGGER = logging.getLogger()
-LOGGER.setLevel(logging.INFO)
 FORMAT = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-HANDLER = logging.Handler(logging.StreamHandler(sys.stdout))
+HANDLER = logging.StreamHandler(sys.stdout)
 HANDLER.setFormatter(FORMAT)
+HANDLER.setLevel(logging.INFO)
 
 for curr_handler in LOGGER.handlers:
     LOGGER.removeHandler(curr_handler)
