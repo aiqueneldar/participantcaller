@@ -7,7 +7,6 @@ import base64
 import json
 import logging
 import os
-import sys
 
 import pymysql
 from pymysql.err import OperationalError, InternalError
@@ -17,15 +16,7 @@ from botocore.exceptions import ClientError  # DO NOT BUNDLE provided by AWS
 
 # Setup logging as we want it
 LOGGER = logging.getLogger()
-FORMAT = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-HANDLER = logging.StreamHandler(sys.stdout)
-HANDLER.setFormatter(FORMAT)
-HANDLER.setLevel(logging.DEBUG)
-
-for curr_handler in LOGGER.handlers:
-    LOGGER.removeHandler(curr_handler)
-
-LOGGER.addHandler(HANDLER)
+LOGGER.setLevel(logging.DEBUG)
 
 
 def get_secret(env):
@@ -286,7 +277,7 @@ def create_attributes(event_data: dict, event_attributes: dict, event_id: int) -
 
 def create_locations(event_data: dict, event_locations: dict, event_id: int) -> tuple:
     """
-    Executes stored precedure in database that sets the event's locations
+    Executes stored procedure in database that sets the event's locations
     :rtype: tuple
     :param event_data: Dict with data regarding the event
     :param event_locations: Data regarding locations this event should have
