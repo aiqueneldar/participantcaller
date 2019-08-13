@@ -221,8 +221,9 @@ def create_event(event_data: dict) -> tuple:
         LOGGER.debug(log_string)
         name = f"'{event_data['name']}'"
         cursor.callproc('create_new_event', (name, ))
+        result = cursor.stored_results()[0]
+        event_id = result.fetch_one()
         CONN.commit()
-        event_id = cursor.lastrowid
     except pymysql.IntegrityError as db_err:
         log_string = f"Integrity Error in database when trying to add new event [{event_data['name']}], error: " \
                      f"{str(db_err)}"
