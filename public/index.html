@@ -40,10 +40,36 @@
 	  </span>
 	</div>
 	</label>
-        <input name="SelectFile" id="SelectFile" type="file" accept="image/*" capture="camera" />
+        <input name="SelectFile" id="SelectFile" type="file" accept="image/*" capture="camera" onchange="openQRCamera(this);" onclick="return showQRIntro();"/>
     </form>
+	<div id="qr-result"></div>
   </div>
 
   <script src="assets/js/app.js"></script>
+  <script src="assets/js/jsqrcode/src/qr_packed.js"></script>
+
+  <script>
+  <!--
+  function openQRCamera(node) {
+  var reader = new FileReader();
+  reader.onload = function() {
+    node.value = "";
+    qrcode.callback = function(res) {
+      if(res instanceof Error) {
+        alert("No QR code found. Please make sure the QR code is within the camera's frame and try again.");
+      } else {
+	document.getElementById("qr-result").innerHTML = res;
+      }
+    };
+    qrcode.decode(reader.result);
+  };
+  reader.readAsDataURL(node.files[0]);
+}
+  function showQRIntro() {
+  return confirm("Use your camera to take a picture of a QR code.");
+}
+  -->
+  </script>
+
 </body>
 </html>
