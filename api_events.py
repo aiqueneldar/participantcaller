@@ -8,11 +8,10 @@ import json
 import logging
 import os
 
-import pymysql
-from pymysql.err import OperationalError, InternalError
-
 import boto3  # DO NOT BUNDLE provided by AWS
 from botocore.exceptions import ClientError  # DO NOT BUNDLE provided by AWS
+import pymysql
+from pymysql.err import OperationalError, InternalError
 
 # Setup logging as we want it
 LOGGER = logging.getLogger()
@@ -386,8 +385,8 @@ def handler(event, context):
             "isBase64Encoded": False,
             "statusCode": output[0],
             "headers": {
-                "Access-Control-Allow-Origin" : "*", 
-                "Access-Control-Allow-Credentials" : true 
+                "Access-Control-Allow-Origin" : "*",
+                "Access-Control-Allow-Credentials" : True
             },
             "body": json.dumps(output[1])
         }
