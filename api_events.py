@@ -385,6 +385,10 @@ def handler(event, context):
         response = {
             "isBase64Encoded": False,
             "statusCode": output[0],
+            "headers": {
+                "Access-Control-Allow-Origin" : "*", 
+                "Access-Control-Allow-Credentials" : true 
+            },
             "body": json.dumps(output[1])
         }
 
