@@ -80,6 +80,7 @@ CREATE TABLE `Entities` (
   `parentEntity` bigint(20) DEFAULT NULL,
   `token` varchar(255) NOT NULL COMMENT 'Frslagsvis ett UUID',
   `lastUpdate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'This need to be updated by all events which the entity is assigned to and any admin action to this entity.',
+  `confirmed` tinyint NOT NULL DEFAULT 0
   PRIMARY KEY (`entityID`),
   KEY `fkIdx_20` (`entityTypeID`),
   KEY `fkIdx_23` (`parentEntity`),
