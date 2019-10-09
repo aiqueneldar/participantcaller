@@ -119,11 +119,21 @@ def get_event_list(payload):
         raise err
 
     output = []
-
+    
     for row in rows:
-        data = [row[0], row[1], row[2], str(row[3])]
+        data = {
+            "event_id" : row[0],
+            "event_name" : row[1],
+            "completed" : row[2],
+            "last_update" : row[3]
+        }
         LOGGER.debug(str(data))
         output.append(data)
+    
+#    for row in rows:
+#        data = [row[0], row[1], row[2], str(row[3])]
+#        LOGGER.debug(str(data))
+#        output.append(data)
 
     return output
 
