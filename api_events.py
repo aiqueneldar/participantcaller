@@ -124,7 +124,7 @@ def get_event_list(payload):
             "event_id" : row[0],
             "event_name" : row[1],
             "completed" : row[2],
-            "last_update" : row[3]
+            "last_update" : str(row[3])
         }
         LOGGER.debug(str(data))
         output.append(data)
