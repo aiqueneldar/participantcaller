@@ -396,7 +396,7 @@ def handler(event, context):
             "headers": {
                 "Access-Control-Allow-Origin" : "*",
                 "Access-Control-Allow-Credentials" : True,
-                "Access-Control-Allow-Methods" : "GET,POST"
+                "Access-Control-Allow-Methods" : "GET,POST,OPTIONS"
             },
             "body": json.dumps(output[1])
         }
