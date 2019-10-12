@@ -370,34 +370,6 @@ INSERT INTO `Entity_Event_Roles` VALUES (285,86,4,89),(248,33,5,21),(102,37,12,6
 UNLOCK TABLES;
 
 --
--- Table structure for table `Entity_Events`
---
-
-DROP TABLE IF EXISTS `Entity_Events`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `Entity_Events` (
-  `eventID` int(11) NOT NULL,
-  `entityID` bigint(20) NOT NULL,
-  PRIMARY KEY (`entityID`,`eventID`),
-  KEY `fkIdx_127` (`eventID`),
-  KEY `fkIdx_130` (`entityID`),
-  CONSTRAINT `FK_127` FOREIGN KEY (`eventID`) REFERENCES `Events` (`eventID`),
-  CONSTRAINT `FK_130` FOREIGN KEY (`entityID`) REFERENCES `Entities` (`entityID`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `Entity_Events`
---
-
-LOCK TABLES `Entity_Events` WRITE;
-/*!40000 ALTER TABLE `Entity_Events` DISABLE KEYS */;
-INSERT INTO `Entity_Events` VALUES (2,55),(2,195),(2,287),(3,212),(4,26),(4,79),(8,202),(11,55),(13,253),(14,18),(14,104),(14,216),(16,182),(16,183),(16,240),(18,256),(20,57),(20,79),(21,171),(21,284),(22,110),(23,213),(29,36),(30,78),(31,174),(33,25),(35,15),(35,58),(37,254),(38,174),(38,191),(39,261),(40,136),(40,185),(42,124),(43,25),(44,263),(45,24),(46,202),(50,81),(50,83),(51,113),(53,32),(53,78),(54,47),(55,41),(55,70),(55,229),(56,222),(57,86),(57,199),(60,207),(63,258),(64,61),(65,201),(67,174),(68,132),(68,250),(69,67),(69,214),(70,145),(71,168),(72,298),(74,34),(74,146),(75,237),(76,184),(76,275),(77,167),(78,247),(78,300),(79,46),(79,92),(79,104),(79,287),(81,27),(82,200),(82,253),(83,31),(83,98),(83,256),(84,122),(85,82),(85,236),(85,277),(86,220),(87,124),(87,158),(88,122),(91,50),(91,101),(92,157),(93,76),(94,35),(94,239),(94,280),(95,172),(96,183),(97,97),(98,139);
-/*!40000 ALTER TABLE `Entity_Events` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `Entity_Roles`
 --
 
