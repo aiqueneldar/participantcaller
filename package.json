@@ -1,8 +1,8 @@
 {
   "name": "participantcaller",
-  "version": "1.0.0",
-  "description": "Can be used to handle notifications to participants in an event.",
-  "main": "public/index.html",
+  "version": "2.0.0",
+  "description": "Rewriting the frontend fron the ground up with Vue-cli",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -10,15 +10,20 @@
     "type": "git",
     "url": "git+https://github.com/aiqueneldar/participantcaller.git"
   },
-  "author": "Calle och Björn",
-  "license": "ISC",
+  "keywords": [
+    "parcaller",
+    "vuejs",
+    "pwa",
+    "participant"
+  ],
+  "author": "bjosch",
+  "license": "GPL-3.0",
   "bugs": {
     "url": "https://github.com/aiqueneldar/participantcaller/issues"
   },
   "homepage": "https://github.com/aiqueneldar/participantcaller#readme",
   "dependencies": {
-    "barcode-scanner": "github:code-kotis/qr-code-scanner#master",
-    "milligram": "^1.3.0",
-    "sass": "^1.21.0"
-  }
+    "@vue/cli-service": "^4.0.4"
+  },
+  "devDependencies": {}
 }

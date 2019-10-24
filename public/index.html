@@ -1,75 +1,30 @@
-<!doctype html>
+<!-- index.html -->
 
-<html lang="sv">
-<head>
-  <meta charset="utf-8">
+<!DOCTYPE html>
 
-  <title>Participant caller</title>
-  <meta name="description" content="Participant caller">
-  <meta name="author" content="Björn och Calle">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#1fc865"/>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
 
-  <link rel="manifest" href="/manifest.json">
-  <link rel="stylesheet" href="assets/css/milligram.css">
-  <link rel="stylesheet" href="assets/css/app.css">
+    <title>Participant caller</title>
+    <meta name="description" content="Participant caller">
+    <meta name="author" content="Björn och Calle">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#1fc865"/>
 
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
+    <link rel="manifest" href="/manifest.json">
 
-  <link rel="icon" type="image/png" href="assets/pictures/favicon.png">
-  <link rel="apple-touch-icon" href="assets/pictures/favicon.png">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
 
-</head>
+    <link rel="icon" type="image/png" href="assets/pictures/favicon.png">
+    <link rel="apple-touch-icon" href="assets/pictures/favicon.png">
 
-<body>
+    <script src="assets/js/cookies.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  </head>
 
-  <div id="content" class="row ">
-    <header class="row column">
-      <h1 id="site-title"><a href="controls.html" title="Interface">Participant caller</a></h1>
-    </header>
-
-    <form action="" method="POST" class="row row-center">
-	<label for="SelectFile">
-	<div class="input--file">
-	  <span>
-	    <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 24 24">
-	      <circle cx="12" cy="12" r="3.2"/>
-	      <path d="M9 2l-1.83 2h-3.17c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2v-12c0-1.1-.9-2-2-2h-3.17l-1.83-2h-6zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/>
-	      <path d="M0 0h24v24h-24z" fill="none"/>
-	    </svg>
-	  </span>
-	</div>
-	</label>
-        <input name="SelectFile" id="SelectFile" type="file" accept="image/*" capture="camera" onchange="openQRCamera(this);" onclick="return showQRIntro();"/>
-    </form>
-	<div id="qr-result"></div>
-  </div>
-
-  <script src="assets/js/app.js"></script>
-  <script src="assets/js/jsqrcode/src/qr_packed.js"></script>
-
-  <script>
-  <!--
-  function openQRCamera(node) {
-  var reader = new FileReader();
-  reader.onload = function() {
-    node.value = "";
-    qrcode.callback = function(res) {
-      if(res instanceof Error) {
-        alert("No QR code found. Please make sure the QR code is within the camera's frame and try again.");
-      } else {
-	document.getElementById("qr-result").innerHTML = res;
-      }
-    };
-    qrcode.decode(reader.result);
-  };
-  reader.readAsDataURL(node.files[0]);
-}
-  function showQRIntro() {
-  return confirm("Use your camera to take a picture of a QR code.");
-}
-  -->
-  </script>
-
-</body>
+  <body>
+    <div id="app"></div>
+    <script src="./main.js"></script>
+  </body>
 </html>
