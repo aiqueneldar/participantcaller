@@ -1,8 +1,29 @@
-# Participant Caller
-Call participants of a tornament to the field, rink, lane, circle that they are to compete in physically
+# participantcaller
 
-## Interactions
-Interacts with participants and administrative personal via phone apps. Main configuration and tournament running UI is via Web interface.
+## Project setup
+```
+yarn install
+```
 
-## API
-Phone apps interact with backend via API calls
+### Compiles and hot-reloads for development
+```
+yarn serve
+```
+
+### Compiles and minifies for production
+```
+yarn build
+```
+
+### Run your unit tests
+```
+yarn test:unit
+```
+
+### Lints and fixes files
+```
+yarn lint
+```
+
+### Customize configuration
+See [Configuration Reference](https://cli.vuejs.org/config/).
