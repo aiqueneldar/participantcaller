@@ -3,9 +3,12 @@ ParticipantCaller API Event handler
 
 Handles Event-API calls for all HTTP Verbs
 """
+import json
 
-from gets import *
-from puts import *
+from gets import get_event
+from posts import post_event
+from puts import put_event
+from helpers import LOGGER
 
 
 def handler(event, context):
@@ -27,7 +30,8 @@ def handler(event, context):
 
     operations = {
         "GET": get_event,
-        "PUT": put_event
+        "PUT": put_event,
+        "POST": post_event
     }
 
     if operation in operations:

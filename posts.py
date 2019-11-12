@@ -115,16 +115,16 @@ def post_event(event):
 
     # Check to see that we have POST data at all
     if "httpMethod" in event and event["httpMethod"] == "POST":
-        body = event.get("body", "{}")
+        body = event.get("body", "{}") # Get the body or empty dict
 
         # Try to load the data as JSON, that is what we expect. Should be event name, attributes and locations.
         try:
-            data = json.loads(body)
-            event_data = data["event"]
-            event_attributes = data["attributes"]
-            event_locations = data["locations"]
+            body_json = json.loads(body) # Convert to JSON
+            event_data = body_json["event"]
+            event_attributes = body_json["attributes"]
+            event_locations = body_json["locations"]
         except json.JSONDecodeError as jerr:
-            log_string = f"Could not get data from POST body. Got error: {str(jerr.msg)}"
+            log_string = f"Could not get update data from POST body. Got error: {str(jerr.msg)}"
             LOGGER.error(log_string)
             raise jerr
         except KeyError as kerr:

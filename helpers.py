@@ -3,6 +3,8 @@ Helper functions shared by all modules
 """
 import logging
 import base64
+import os
+import json
 
 import boto3  # DO NOT BUNDLE provided by AWS
 from botocore.exceptions import ClientError  # DO NOT BUNDLE provided by AWS
@@ -10,8 +12,7 @@ from botocore.exceptions import ClientError  # DO NOT BUNDLE provided by AWS
 import pymysql
 from pymysql.err import OperationalError, InternalError
 
-import os
-import json
+
 
 # Setup logging as we want it
 LOGGER = logging.getLogger()

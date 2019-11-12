@@ -2,8 +2,12 @@
 Deals with everything related to the PUTS verb (creation of new items)
 Used by the main api_events module
 """
+import json
 
-from helpers import *
+import pymysql
+
+from helpers import CONN, LOGGER
+
 
 def create_event(event_data: dict) -> dict:
     """
@@ -125,10 +129,10 @@ def put_event(event):
             event_data = data["event"]
             event_attributes = data["attributes"]
             event_locations = data["locations"]
-        except json.JSONDecodeError as jerr:
-            log_string = f"Could not get data from PUT body. Got error: {str(jerr.msg)}"
+        except json.JSONDecodeError as jerror:
+            log_string = f"Could not get create data from PUT body. Got error: {str(jerror.msg)}"
             LOGGER.error(log_string)
-            raise jerr
+            raise jerror
         except KeyError as kerr:
             log_string = f"Could not find all necessary keys in data provided. Error: {str(kerr)}"
             LOGGER.error(log_string)
