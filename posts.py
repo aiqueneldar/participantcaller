@@ -2,8 +2,12 @@
 Deals with the POST verb (updating existing values)
 Used by the main api_events module
 """
+import json
 
-from helpers import *
+import pymysql
+
+from helpers import CONN, LOGGER
+
 
 def update_event(event_data: dict) -> dict:
     """
