@@ -11,9 +11,9 @@ from helpers import CONN, LOGGER
 
 def update_event(event_data: dict) -> dict:
     """
-    Executes database stored procuedure to create event. And handles creation errors
+    Executes database stored procedure to create event. And handles creation errors
     :rtype: tuple
-    :param event_data: Dcit containeing the data needed to create the event
+    :param event_data: Dict containing the data needed to create the event
     :return: Tuple consisting, of status code and dict with data payload
     """
     cursor = CONN.cursor()
