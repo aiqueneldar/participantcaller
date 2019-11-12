@@ -96,6 +96,7 @@ def get_single_event(payload):
 
     output = {}
     output["statusCode"] = 200
+    output["data"] = {}
     output["data"]["event"] = event
     output["data"]["event"]["eventAttributes"] = attributes
     output["data"]["event"]["eventLocations"] = locations
