@@ -75,6 +75,8 @@ def get_single_event(payload):
         log_string = f"Couldn't get the event with id {event_id}. Problem with DB. \
                     Error msg: {err}"
         LOGGER.error(log_string)
+    # Fix datetime to be string for JSON serialization
+    event["lastUpdate"] = str(event["lastUpdate"])
 
     attributes = {}
     try:
