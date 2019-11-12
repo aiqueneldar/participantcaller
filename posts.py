@@ -5,7 +5,38 @@ Used by the main api_events module
 
 from helpers import *
 
-def update_event(event, attributes):
+def update_event(event_data: dict) -> dict:
+    """
+    Executes database stored procuedure to create event. And handles creation errors
+    :rtype: tuple
+    :param event_data: Dcit containeing the data needed to create the event
+    :return: Tuple consisting, of status code and dict with data payload
+    """
+    cursor = CONN.cursor()
+    try:
+        log_string = f"Updating event to new name {event_data['name']}"
+        LOGGER.debug(log_string)
+        new_name = f"'{event_data['name']}'"
+        event_id = f"{event_data['event_id']}'"
+        cursor.callproc('update_event', (event_id, new_name))
+        CONN.commit()
+    except pymysql.IntegrityError as db_err:
+        log_string = f"Integrity Error in database when trying to update event to [{event_data['name']}], error: " \
+                     f"{str(db_err)}"
+        LOGGER.error(log_string)
+        return {"statusCode": 400, "status": "Update Error"}  # HTTP Code 409 mean 'conflict'
+    except pymysql.Error as db_err:
+        log_string = f"Database returned error when updating event: {str(db_err)}"
+        LOGGER.error(log_string)
+        return {"statusCode": 500, "status": "Internal Error"}
+    except KeyError as kerr:
+        log_string = f"Missing key in data. Couldn't complete update of event: {str(kerr)}"
+        LOGGER.error(log_string)
+        return {"statusCode": 404, "status": "Missing data in request"}
+
+    return {"statusCode": 200, "status": "Success"}
+
+def update_attributes(event, attributes):
     """
         Executes stored procedure in database to set attributes for the  event
         :rtype: dict
@@ -26,7 +57,7 @@ def update_event(event, attributes):
         log_string = f"Integrity Error in database when trying to update attributes to the Event " \
                      f"[{event['name']}], error: {str(db_err)}"
         LOGGER.error(log_string)
-        return {"statusCode": 400, "status": "Attribute already exists"}  # HTTP Code 409 mean 'conflict'
+        return {"statusCode": 400, "status": "Attribute update error"}  # HTTP Code 409 mean 'conflict'
     except pymysql.Error as db_err:
         log_string = f"Database returned error when updating event attributes: {str(db_err)}"
         LOGGER.error(log_string)
@@ -55,7 +86,7 @@ def update_locations(event: dict, locations: dict) -> dict:
         log_string = f"Integrity Error in database when trying to update locations to the Event " \
                      f"[{event['name']}], error: {str(db_err)}"
         LOGGER.error(log_string)
-        return {"statusCode": 400, "status": "Location already exists"}  # HTTP Code 409 mean 'conflict'
+        return {"statusCode": 400, "status": "Location update error"}  # HTTP Code 409 mean 'conflict'
     except pymysql.Error as db_err:
         log_string = f"Database returned error when updating event with locations: {str(db_err)}"
         LOGGER.error(log_string)
