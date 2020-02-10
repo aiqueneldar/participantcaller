@@ -98,6 +98,34 @@ def delete_locations(event_id: int) -> dict:
 
     return {"statusCode": 204}
 
+def delete_thresholds(event_id: int) -> dict:
+    """
+    Executes stored procedure in database that deletes locations associated with the event
+    :rtype: dict
+    :param event_id: Integer of the new event id created for the event
+    :return: Dict with status code and dict with data payload
+    """
+    cursor = CONN.cursor()
+    try:
+        cursor.callproc('delete_event_thresholds', (event_id,))
+        CONN.commit()
+    except pymysql.IntegrityError as db_err:
+        log_string = f"Integrity Error in database when trying to remove thresholds from the event with id {event_id}" \
+                     f" , error: {str(db_err)}"
+        LOGGER.error(log_string)
+        return {"statusCode": 409, "status": "Threshold could not be removed"}  # HTTP Code 409 mean 'conflict'
+    except pymysql.Error as db_err:
+        log_string = f"Database returned error when removing thresholds from event with id {event_id}: {str(db_err)}"
+        LOGGER.error(log_string)
+        return {"statusCode": 500, "status": "Internal Error"}
+    except KeyError as kerr:
+        log_string = f"Missing key in data. Couldn't complete removal of thresholds from event with id {event_id}: " \
+                     f"{str(kerr)}"
+        LOGGER.error(log_string)
+        return {"statusCode": 400, "status": "Missing data in request"}
+
+    return {"statusCode": 204}
+
 
 def delete_event(event):
     """
@@ -128,9 +156,10 @@ def delete_event(event):
             LOGGER.error("Event ID is not an integer!")
             event_id = 0
 
-        # First remove locations and attributes, as they use EventIds as FK
+        # First remove locations, attributes and thresholds, as they use EventIds as FK
         output["locations"] = delete_locations(event_id)
         output["attributes"] = delete_attributes(event_id)
+        output['thresholds'] = delete_thresholds(event_id)
 
         # Lastly remove the event with the given event id
         output["event"] = remove_event(event_id)
