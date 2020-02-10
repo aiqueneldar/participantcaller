@@ -29,7 +29,7 @@ def create_event(event_data: dict) -> dict:
         log_string = f"Integrity Error in database when trying to add new event [{event_data['name']}], error: " \
                      f"{str(db_err)}"
         LOGGER.error(log_string)
-        return {"statusCode": 400, "status": "Already exists"}  # HTTP Code 409 mean 'conflict'
+        return {"statusCode": 409, "status": "Already exists"}  # HTTP Code 409 mean 'conflict'
     except pymysql.Error as db_err:
         log_string = f"Database returned error when creating new event: {str(db_err)}"
         LOGGER.error(log_string)

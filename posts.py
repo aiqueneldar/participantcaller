@@ -28,7 +28,7 @@ def update_event(event_data: dict) -> dict:
         log_string = f"Integrity Error in database when trying to update event to [{event_data['name']}], error: " \
                      f"{str(db_err)}"
         LOGGER.error(log_string)
-        return {"statusCode": 400, "status": "Update Error"}  # HTTP Code 409 mean 'conflict'
+        return {"statusCode": 409, "status": "Update Error"}  # HTTP Code 409 mean 'conflict'
     except pymysql.Error as db_err:
         log_string = f"Database returned error when updating event: {str(db_err)}"
         LOGGER.error(log_string)
@@ -40,7 +40,7 @@ def update_event(event_data: dict) -> dict:
 
     return {"statusCode": 200, "status": "Success"}
 
-def update_attributes(event, attributes):
+def update_attributes(event: dict, attributes: list) -> dict:
     """
         Executes stored procedure in database to set attributes for the  event
         :rtype: dict
@@ -146,4 +146,4 @@ def post_event(event):
                 return_data = (value[0], json.dumps(value[1]))
                 return return_data
 
-    return {"statusCode": 200, "status": "Updated"}  # HTTP Code 201 mean 'created'
+    return {"statusCode": 200, "status": "Updated"}  # HTTP Code 200 mean 'created'

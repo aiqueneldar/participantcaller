@@ -5,6 +5,7 @@ Handles Event-API calls for all HTTP Verbs
 """
 import json
 
+from deletes import delete_event
 from gets import get_event
 from posts import post_event
 from puts import put_event
@@ -31,7 +32,8 @@ def handler(event, context):
     operations = {
         "GET": get_event,
         "PUT": put_event,
-        "POST": post_event
+        "POST": post_event,
+        "DELETE": delete_event
     }
 
     if operation in operations:
