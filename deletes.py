@@ -127,6 +127,95 @@ def delete_thresholds(event_id: int) -> dict:
     return {"statusCode": 204}
 
 
+def delete_entities(event_id: int) -> dict:
+    """
+    Executes stored procedure in database that deletes entities associated with the event
+    :rtype: dict
+    :param event_id: Integer of the event id to remove for the event
+    :return: Dict with status code and dict with data payload
+    """
+    cursor = CONN.cursor()
+    try:
+        cursor.callproc('delete_entity_event', (event_id,))
+        CONN.commit()
+    except pymysql.IntegrityError as db_err:
+        log_string = f"Integrity Error in database when trying to remove entities from the event with id {event_id}" \
+                     f" , error: {str(db_err)}"
+        LOGGER.error(log_string)
+        return {"statusCode": 409, "status": "Entity could not be removed"}  # HTTP Code 409 mean 'conflict'
+    except pymysql.Error as db_err:
+        log_string = f"Database returned error when removing entities from event with id {event_id}: {str(db_err)}"
+        LOGGER.error(log_string)
+        return {"statusCode": 500, "status": "Internal Error"}
+    except KeyError as kerr:
+        log_string = f"Missing key in data. Couldn't complete removal of entities from event with id {event_id}: " \
+                     f"{str(kerr)}"
+        LOGGER.error(log_string)
+        return {"statusCode": 400, "status": "Missing data in request"}
+
+    return {"statusCode": 204}
+
+
+def delete_entity_abilities(event_id: int) -> dict:
+    """
+    Executes stored procedure in database that deletes entity abilities associated with the event
+    :rtype: dict
+    :param event_id: Integer of the event id to remove for the event
+    :return: Dict with status code and dict with data payload
+    """
+    cursor = CONN.cursor()
+    try:
+        cursor.callproc('delete_entity_event_abilities', (event_id,))
+        CONN.commit()
+    except pymysql.IntegrityError as db_err:
+        log_string = f"Integrity Error in database when trying to remove entity abilities from the event with id" \
+                     f" {event_id}, error: {str(db_err)}"
+        LOGGER.error(log_string)
+        return {"statusCode": 409, "status": "Entity could not be removed"}  # HTTP Code 409 mean 'conflict'
+    except pymysql.Error as db_err:
+        log_string = f"Database returned error when removing entity abilities from event with id " \
+                     f"{event_id}: {str(db_err)}"
+        LOGGER.error(log_string)
+        return {"statusCode": 500, "status": "Internal Error"}
+    except KeyError as kerr:
+        log_string = f"Missing key in data. Couldn't complete removal of entity abilities from event with id " \
+                     f"{event_id}:{str(kerr)}"
+        LOGGER.error(log_string)
+        return {"statusCode": 400, "status": "Missing data in request"}
+
+    return {"statusCode": 204}
+
+
+def delete_entity_roles(event_id: int) -> dict:
+    """
+    Executes stored procedure in database that deletes entity roles associated with the event
+    :rtype: dict
+    :param event_id: Integer of the event id to remove for the event
+    :return: Dict with status code and dict with data payload
+    """
+    cursor = CONN.cursor()
+    try:
+        cursor.callproc('delete_entity_event_roles', (event_id,))
+        CONN.commit()
+    except pymysql.IntegrityError as db_err:
+        log_string = f"Integrity Error in database when trying to remove entity roles from the event with id" \
+                     f" {event_id}, error: {str(db_err)}"
+        LOGGER.error(log_string)
+        return {"statusCode": 409, "status": "Entity could not be removed"}  # HTTP Code 409 mean 'conflict'
+    except pymysql.Error as db_err:
+        log_string = f"Database returned error when removing entity roles from event with id " \
+                     f"{event_id}: {str(db_err)}"
+        LOGGER.error(log_string)
+        return {"statusCode": 500, "status": "Internal Error"}
+    except KeyError as kerr:
+        log_string = f"Missing key in data. Couldn't complete removal of entity roles from event with id " \
+                     f"{event_id}:{str(kerr)}"
+        LOGGER.error(log_string)
+        return {"statusCode": 400, "status": "Missing data in request"}
+
+    return {"statusCode": 204}
+
+
 def delete_event(event):
     """
     Function to create a new event. Expects JSON encoded data with event details.
@@ -160,6 +249,9 @@ def delete_event(event):
         output["locations"] = delete_locations(event_id)
         output["attributes"] = delete_attributes(event_id)
         output['thresholds'] = delete_thresholds(event_id)
+        output['entities'] = delete_entities(event_id)
+        output['entity_abilities'] = delete_entity_abilities(event_id)
+        output['entity_roles'] = delete_entity_roles(event_id)
 
         # Lastly remove the event with the given event id
         output["event"] = remove_event(event_id)
