@@ -8,6 +8,11 @@ import pymysql
 
 from helpers import CONN, LOGGER
 
+class RemoveException(Exception):
+    """
+    Just needed a specific Exception to catch to handle when something goes wrong in removal.
+    """
+
 
 def remove_event(event_id: int) -> dict:
     """
@@ -142,16 +147,17 @@ def delete_entities(event_id: int) -> dict:
         log_string = f"Integrity Error in database when trying to remove entities from the event with id {event_id}" \
                      f" , error: {str(db_err)}"
         LOGGER.error(log_string)
-        return {"statusCode": 409, "status": "Entity could not be removed"}  # HTTP Code 409 mean 'conflict'
+        # HTTP Code 409 mean 'conflict'
+        raise RemoveException(json.dumps({"statusCode": 409, "status": "Entity could not be removed"}))
     except pymysql.Error as db_err:
         log_string = f"Database returned error when removing entities from event with id {event_id}: {str(db_err)}"
         LOGGER.error(log_string)
-        return {"statusCode": 500, "status": "Internal Error"}
+        raise RemoveException(json.dumps({"statusCode": 500, "status": "Internal Error"}))
     except KeyError as kerr:
         log_string = f"Missing key in data. Couldn't complete removal of entities from event with id {event_id}: " \
                      f"{str(kerr)}"
         LOGGER.error(log_string)
-        return {"statusCode": 400, "status": "Missing data in request"}
+        raise RemoveException(json.dumps({"statusCode": 400, "status": "Missing data in request"}))
 
     return {"statusCode": 204}
 
@@ -171,17 +177,18 @@ def delete_entity_abilities(event_id: int) -> dict:
         log_string = f"Integrity Error in database when trying to remove entity abilities from the event with id" \
                      f" {event_id}, error: {str(db_err)}"
         LOGGER.error(log_string)
-        return {"statusCode": 409, "status": "Entity could not be removed"}  # HTTP Code 409 mean 'conflict'
+        # HTTP Code 409 mean 'conflict'
+        raise RemoveException(json.dumps({"statusCode": 409, "status": "Entity could not be removed"}))
     except pymysql.Error as db_err:
         log_string = f"Database returned error when removing entity abilities from event with id " \
                      f"{event_id}: {str(db_err)}"
         LOGGER.error(log_string)
-        return {"statusCode": 500, "status": "Internal Error"}
+        raise RemoveException(json.dumps({"statusCode": 500, "status": "Internal Error"}))
     except KeyError as kerr:
         log_string = f"Missing key in data. Couldn't complete removal of entity abilities from event with id " \
                      f"{event_id}:{str(kerr)}"
         LOGGER.error(log_string)
-        return {"statusCode": 400, "status": "Missing data in request"}
+        raise RemoveException(json.dumps({"statusCode": 400, "status": "Missing data in request"}))
 
     return {"statusCode": 204}
 
@@ -201,17 +208,18 @@ def delete_entity_roles(event_id: int) -> dict:
         log_string = f"Integrity Error in database when trying to remove entity roles from the event with id" \
                      f" {event_id}, error: {str(db_err)}"
         LOGGER.error(log_string)
-        return {"statusCode": 409, "status": "Entity could not be removed"}  # HTTP Code 409 mean 'conflict'
+        # HTTP Code 409 mean 'conflict'
+        raise RemoveException(json.dumps({"statusCode": 409, "status": "Entity could not be removed"}))
     except pymysql.Error as db_err:
         log_string = f"Database returned error when removing entity roles from event with id " \
                      f"{event_id}: {str(db_err)}"
         LOGGER.error(log_string)
-        return {"statusCode": 500, "status": "Internal Error"}
+        raise RemoveException(json.dumps({"statusCode": 500, "status": "Internal Error"}))
     except KeyError as kerr:
         log_string = f"Missing key in data. Couldn't complete removal of entity roles from event with id " \
                      f"{event_id}:{str(kerr)}"
         LOGGER.error(log_string)
-        return {"statusCode": 400, "status": "Missing data in request"}
+        raise RemoveException(json.dumps({"statusCode": 400, "status": "Missing data in request"}))
 
     return {"statusCode": 204}
 
@@ -246,19 +254,18 @@ def delete_event(event):
             event_id = 0
 
         # First remove locations, attributes and thresholds, as they use EventIds as FK
-        output["locations"] = delete_locations(event_id)
-        output["attributes"] = delete_attributes(event_id)
-        output['thresholds'] = delete_thresholds(event_id)
-        output['entities'] = delete_entities(event_id)
-        output['entity_abilities'] = delete_entity_abilities(event_id)
-        output['entity_roles'] = delete_entity_roles(event_id)
+        try:
+            output["locations"] = delete_locations(event_id)
+            output["attributes"] = delete_attributes(event_id)
+            output['thresholds'] = delete_thresholds(event_id)
+            output['entities'] = delete_entities(event_id)
+            output['entity_abilities'] = delete_entity_abilities(event_id)
+            output['entity_roles'] = delete_entity_roles(event_id)
 
-        # Lastly remove the event with the given event id
-        output["event"] = remove_event(event_id)
+            # Lastly remove the event with the given event id
+            output["event"] = remove_event(event_id)
+        except RemoveException as rev_err:
+            return json.loads(str(rev_err))
 
-        for value in output.values():
-            if value["statusCode"] != 204:
-                return_data = json.dumps(value)
-                return return_data
 
     return {"statusCode": 204}  # HTTP Code 204 mean no body is sent back (as per usual with DELETE)
