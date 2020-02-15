@@ -32,6 +32,7 @@ def get_event_list(payload):
 
     output = {}
     output["data"] = []
+    output["statusCode"] = 200
 
     for row in rows:
         data = {
@@ -43,7 +44,7 @@ def get_event_list(payload):
         LOGGER.debug(str(data))
         output["data"].append(data)
 
-    output["statusCode"] = 200
+
     return output
 
 
@@ -80,7 +81,8 @@ def get_single_event(payload):
 
     attributes = {}
     try:
-        cursor.execute(f"SELECT * FROM PartcallerDB.EventAttributes WHERE eventID = {event_id}")
+        cursor.execute(f"SELECT attributeID, attributeName, attributeValue, parentAttribute FROM "
+                       f"PartcallerDB.EventAttributes WHERE eventID = {event_id}")
         attributes = cursor.fetchall()
     except (OperationalError, InternalError) as err:
         log_string = f"Couldn't list all event attributes from event with id {event_id}. Problem with DB. \
@@ -89,7 +91,8 @@ def get_single_event(payload):
 
     locations = {}
     try:
-        cursor.execute(f"SELECT * FROM PartcallerDB.EventLocations WHERE eventID = {event_id}")
+        cursor.execute(f"SELECT locationID, locationName, locationDescription, reusable FROM "
+                       f"PartcallerDB.EventLocations WHERE eventID = {event_id}")
         locations = cursor.fetchall()
     except (OperationalError, InternalError) as err:
         log_string = f"Couldn't list all locations for event with id {event_id}. Problem with DB. \

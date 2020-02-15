@@ -57,8 +57,10 @@ def delete_event(event):
     if "httpMethod" in event and event["httpMethod"] == "DELETE":
         body = event.get("body", "{}")
         # Try to load the data as JSON, that is what we expect. Should be event name, attributes and locations.
+        orig_id = ""
         try:
             data = json.loads(body)
+            orig_id = data["event_id"]
             event_id = int(data["event_id"])
         except json.JSONDecodeError as jerror:
             log_string = f"Could not get event id from DELETE body. Got error: {str(jerror.msg)}"
@@ -86,7 +88,7 @@ def delete_event(event):
 
         # If event don't exists, value of exists variable is None or 0, both false.
         if not exists:
-            return {"statusCode": 404, "status": "Couldn't find event with id {}".format(event_id)}
+            return {"statusCode": 404, "status": "Couldn't find event with id {}".format(orig_id)}
 
         actions = [{'action': 'delete_event_attributes', 'message': 'attributes from event with id'},
                    {'action': 'delete_event_locations', 'message': 'locations from event with id'},
