@@ -72,6 +72,22 @@ def delete_event(event):
             LOGGER.error("Event ID is not an integer!")
             event_id = 0
 
+        # Determine if event exists
+        cursor = CONN.cursor()
+        try:
+            cursor.execute("SELECT count(eventID) FROM Events WHERE eventID = {}".format(event_id))
+            exists = int(cursor.fetchone())
+        except pymysql.err.OperationalError as err:
+            LOGGER.error("Couldn't list all events. Problem with DB")
+            raise err
+        except ValueError:
+            exists = 0
+            LOGGER.error("Didn't get a valid integer back when examining if event with id {} exists", event_id)
+
+        # If event don't exists, value of exists variable is None or 0, both false.
+        if not exists:
+            return {"statusCode": 404, "status": "Couldn't find event with id {}".format(event_id)}
+
         actions = [{'action': 'delete_event_attributes', 'message': 'attributes from event with id'},
                    {'action': 'delete_event_locations', 'message': 'locations from event with id'},
                    {'action': 'delete_event_thresholds', 'message': 'thresholds from event with id'},
