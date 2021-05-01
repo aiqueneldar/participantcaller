@@ -1,0 +1,33 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      python: 3.7
+    commands:
+      - apt-get update -y
+      - apt-get install -y python-pip zip
+      - pip install --upgrade pip
+      - pip install virtualenv
+  pre_build:
+    commands:
+      - virtualenv env
+      - . env/bin/activate
+      - pip install -r requirements.txt
+      - pip install pylint boto3
+      - pylint api_events
+  build:
+    commands:
+      - export APP_DIR=app
+      - mkdir $APP_DIR
+      - mv *.py $APP_DIR
+      - cp -rf env/lib/python*/site-packages/* $APP_DIR
+      - rm -rf env .gitignore requirements.txt TestDatabase.sql .pylintrc .gitignore README.md LICENSE
+  post_build:
+    commands:
+      - export BUCKET=partcallerartifactbucket
+      - aws cloudformation package --template-file template.yaml --s3-bucket $BUCKET --output-template-file outputtemplate.yaml
+artifacts:
+  type: zip
+  files:
+    - template.yaml
+    - outputtemplate.yaml
