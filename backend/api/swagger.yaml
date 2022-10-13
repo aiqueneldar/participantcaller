@@ -1,0 +1,1543 @@
+openapi: 3.0.0
+info:
+  title: ParticipantCaller API
+  description: API for the app ParticipantCaller
+  contact:
+    email: aiqueneldar@gmail.com
+  license:
+    name: GPL 3.0
+    url: https://www.gnu.org/licenses/gpl-3.0.en.html
+  version: 1.0.0
+servers:
+- url: https://virtserver.swaggerhub.com/p9139/partcaller/1.0.0
+  description: ParticipantCaller Enpoint
+tags:
+- name: abilities
+  description: Abilities that an entity can have. Grouped into roles
+- name: entities
+  description: "Everything that is something (phone, player, team, etc)"
+- name: events
+  description: "Event that is happening, can have locations and enteties"
+- name: locations
+  description: "Locations such as fields, rings, mats etc where enteties should meet"
+- name: roles
+  description: Group of abilites that gets applied to an entity
+paths:
+  /abilities/list:
+    get:
+      tags:
+      - abilities
+      summary: List abilities
+      description: |
+        Lists allabilities all abilities. Use abilities/get with query string 'query'
+        containing the ability id to get one ability.
+      operationId: listAbilities
+      responses:
+        "200":
+          description: A list of all abilities
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Ability'
+                x-content-type: application/json
+        "401":
+          description: Client is not logged in and tries to reach a resource that
+            needs authorization
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        "403":
+          description: Client is actorhized but does not have authorization to use
+            this resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Forbidden'
+        "500":
+          description: An internal server error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /abilities/get:
+    get:
+      tags:
+      - abilities
+      summary: Retrieve ability info
+      description: "Use  with query string 'id' containing the ability UUID to  \n\
+        get a specific ability.\n"
+      operationId: getAbility
+      parameters:
+      - name: id
+        in: query
+        description: UUID of the ability to fetch
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: detailed description about a ability
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ability'
+          links:
+            ModifyAbility:
+              $ref: '#/components/links/ModifyAbility'
+            DeleteAbility:
+              $ref: '#/components/links/DelAbility'
+        "400":
+          description: "An invalid input, or object invalid"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invalid'
+        "401":
+          description: Client is not logged in and tries to reach a resource that
+            needs authorization
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        "403":
+          description: Client is actorhized but does not have authorization to use
+            this resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Forbidden'
+        "404":
+          description: The specified resource was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        "500":
+          description: An internal server error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /abilities/add:
+    post:
+      tags:
+      - abilities
+      summary: Adds an ability to the system
+      description: Adds an new ability to the system
+      operationId: addAbility
+      requestBody:
+        description: The new ability to create in the system
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AbilityNew'
+      responses:
+        "201":
+          description: Ability created correctly
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AbilityId'
+          links:
+            GetAbility:
+              $ref: '#/components/links/GetAbility'
+            ModifyAbility:
+              $ref: '#/components/links/ModifyAbility'
+            DeleteAbility:
+              $ref: '#/components/links/DelAbility'
+        "400":
+          description: "An invalid input, or object invalid"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invalid'
+        "401":
+          description: Client is not logged in and tries to reach a resource that
+            needs authorization
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        "403":
+          description: Client is actorhized but does not have authorization to use
+            this resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Forbidden'
+        "409":
+          description: A duplicate resource already exists. Try using resource/modify
+            instead
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Duplicate'
+        "500":
+          description: An internal server error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /abilities/modify:
+    put:
+      tags:
+      - abilities
+      summary: Modify an existing ability
+      description: Modifies an already existing ability
+      operationId: modifyAbility
+      requestBody:
+        description: |
+          Details to modify about an ability. UUID is immutable and
+          used to identify the ability to modify.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Ability'
+      responses:
+        "200":
+          description: Ability modified
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AbilityId'
+          links:
+            GetAbility:
+              $ref: '#/components/links/GetAbility'
+            ModifyAbility:
+              $ref: '#/components/links/ModifyAbility'
+            DeleteAbility:
+              $ref: '#/components/links/DelAbility'
+        "400":
+          description: "An invalid input, or object invalid"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invalid'
+        "401":
+          description: Client is not logged in and tries to reach a resource that
+            needs authorization
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        "403":
+          description: Client is actorhized but does not have authorization to use
+            this resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Forbidden'
+        "404":
+          description: The specified resource was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        "500":
+          description: An internal server error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /abilities/delete:
+    delete:
+      tags:
+      - abilities
+      summary: Delete an existing ability
+      operationId: deleteAbility
+      parameters:
+      - name: id
+        in: query
+        description: UUID of the ability to delete
+        required: true
+        content:
+          schema:
+            schema:
+              type: string
+              description: UUID of ability to delete
+              example: d5721b3a-bdd0-430a-930f-813674eb02c9
+              x-content-type: schema
+      responses:
+        "204":
+          description: Sent back if ability was deleted successfully
+        "400":
+          description: "An invalid input, or object invalid"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invalid'
+        "401":
+          description: Client is not logged in and tries to reach a resource that
+            needs authorization
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        "403":
+          description: Client is actorhized but does not have authorization to use
+            this resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Forbidden'
+        "500":
+          description: An internal server error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /entities/list:
+    get:
+      tags:
+      - entities
+      summary: List all entities UUIDs
+      description: |
+        Returns a list of all enteties UUIDs and names
+      operationId: listEntities
+      responses:
+        "200":
+          description: list of entities with summary information
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EntityIdName'
+                x-content-type: application/json
+        "400":
+          description: "An invalid input, or object invalid"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invalid'
+        "401":
+          description: Client is not logged in and tries to reach a resource that
+            needs authorization
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        "403":
+          description: Client is actorhized but does not have authorization to use
+            this resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Forbidden'
+        "500":
+          description: An internal server error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /entities/get:
+    get:
+      tags:
+      - entities
+      summary: Retrive entity information
+      description: "Use  with query string 'id' containing the entity id to  \nget\
+        \ specific information about a entity.\n"
+      operationId: getEntities
+      parameters:
+      - name: id
+        in: query
+        description: |
+          UUID of the entity to be retreived
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Detailed description of one entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Entity'
+          links:
+            ModifyEntity:
+              $ref: '#/components/links/ModifyEntity'
+            DeleteEntity:
+              $ref: '#/components/links/DelEntity'
+        "400":
+          description: "An invalid input, or object invalid"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invalid'
+        "401":
+          description: Client is not logged in and tries to reach a resource that
+            needs authorization
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        "403":
+          description: Client is actorhized but does not have authorization to use
+            this resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Forbidden'
+        "404":
+          description: The specified resource was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        "500":
+          description: An internal server error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /entities/add:
+    post:
+      tags:
+      - entities
+      summary: Adds a new entity
+      description: Adds an new entity to the system
+      operationId: addEntity
+      requestBody:
+        description: Information about the new entity to add.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EntityNew'
+      responses:
+        "201":
+          description: A new entity was added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntityId'
+          links:
+            GetEntity:
+              $ref: '#/components/links/GetEntity'
+            ModifyEntity:
+              $ref: '#/components/links/ModifyEntity'
+            DeleteEntity:
+              $ref: '#/components/links/DelEntity'
+        "400":
+          description: "An invalid input, or object invalid"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invalid'
+        "401":
+          description: Client is not logged in and tries to reach a resource that
+            needs authorization
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        "403":
+          description: Client is actorhized but does not have authorization to use
+            this resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Forbidden'
+        "409":
+          description: A duplicate resource already exists. Try using resource/modify
+            instead
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Duplicate'
+        "500":
+          description: An internal server error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /entities/modify:
+    put:
+      tags:
+      - entities
+      summary: Modify an existing entity
+      description: Modifies an already existing entity
+      operationId: modifyEntity
+      requestBody:
+        description: "Details to modify about an entity, UUID is immutable"
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Entity'
+      responses:
+        "201":
+          description: Entity is modified
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntityId'
+          links:
+            GetEntity:
+              $ref: '#/components/links/GetEntity'
+            DeleteEntity:
+              $ref: '#/components/links/DelEntity'
+        "400":
+          description: "An invalid input, or object invalid"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invalid'
+        "401":
+          description: Client is not logged in and tries to reach a resource that
+            needs authorization
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        "403":
+          description: Client is actorhized but does not have authorization to use
+            this resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Forbidden'
+        "404":
+          description: The specified resource was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        "500":
+          description: An internal server error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /entities/delete:
+    delete:
+      tags:
+      - entities
+      summary: Delete an entity
+      description: Deletes an already existing entity
+      operationId: deleteEntity
+      parameters:
+      - name: id
+        in: query
+        description: UUID of the entity to delete
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: Entity was successfully deleted
+        "400":
+          description: "An invalid input, or object invalid"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invalid'
+        "401":
+          description: Client is not logged in and tries to reach a resource that
+            needs authorization
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        "403":
+          description: Client is actorhized but does not have authorization to use
+            this resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Forbidden'
+        "404":
+          description: The specified resource was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        "500":
+          description: An internal server error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /events/list:
+    get:
+      tags:
+      - events
+      summary: List events
+      description: Lists all events with a summary.
+      operationId: listEvents
+      responses:
+        "200":
+          description: List of event UUIDs and names
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EventIdName'
+                x-content-type: application/json
+        "400":
+          description: "An invalid input, or object invalid"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invalid'
+        "401":
+          description: Client is not logged in and tries to reach a resource that
+            needs authorization
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        "403":
+          description: Client is actorhized but does not have authorization to use
+            this resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Forbidden'
+        "500":
+          description: An internal server error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /events/get:
+    get:
+      tags:
+      - events
+      summary: Get event information
+      description: Get all information about an event.
+      operationId: getEvents
+      parameters:
+      - name: id
+        in: query
+        description: UUID of the event to retrieve all information for.
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Detailed description of one event.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        "400":
+          description: "An invalid input, or object invalid"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invalid'
+        "401":
+          description: Client is not logged in and tries to reach a resource that
+            needs authorization
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        "403":
+          description: Client is actorhized but does not have authorization to use
+            this resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Forbidden'
+        "404":
+          description: The specified resource was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        "500":
+          description: An internal server error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /events/add:
+    post:
+      tags:
+      - events
+      summary: Adds a new event
+      description: Adds an new event to the system
+      operationId: addEvent
+      requestBody:
+        description: Event to create
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventNew'
+      responses:
+        "201":
+          description: New event was created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventId'
+          links:
+            GetEvent:
+              $ref: '#/components/links/GetEvent'
+            ModifyEvent:
+              $ref: '#/components/links/ModifyEvent'
+            DeleteEvent:
+              $ref: '#/components/links/DelEvent'
+        "400":
+          description: "An invalid input, or object invalid"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invalid'
+        "401":
+          description: Client is not logged in and tries to reach a resource that
+            needs authorization
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        "403":
+          description: Client is actorhized but does not have authorization to use
+            this resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Forbidden'
+        "409":
+          description: A duplicate resource already exists. Try using resource/modify
+            instead
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Duplicate'
+        "500":
+          description: An internal server error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /events/modify:
+    put:
+      tags:
+      - events
+      summary: Modify an existing event
+      description: Modifies an already existing event
+      operationId: modifyEvent
+      requestBody:
+        description: "Details to modify about an event, UUID is immutable"
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Event'
+      responses:
+        "201":
+          description: Event is modified
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventId'
+          links:
+            GetEvent:
+              $ref: '#/components/links/GetEvent'
+            DeleteEvent:
+              $ref: '#/components/links/DelEvent'
+        "400":
+          description: "An invalid input, or object invalid"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invalid'
+        "401":
+          description: Client is not logged in and tries to reach a resource that
+            needs authorization
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        "403":
+          description: Client is actorhized but does not have authorization to use
+            this resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Forbidden'
+        "404":
+          description: The specified resource was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        "500":
+          description: An internal server error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /events/delete:
+    delete:
+      tags:
+      - events
+      summary: Delete an event
+      description: Deletes an already existing event
+      operationId: deleteEvent
+      parameters:
+      - name: id
+        in: query
+        description: UUID of the event to delete
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: Event was successfully deleted
+        "400":
+          description: "An invalid input, or object invalid"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invalid'
+        "401":
+          description: Client is not logged in and tries to reach a resource that
+            needs authorization
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
+        "403":
+          description: Client is actorhized but does not have authorization to use
+            this resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Forbidden'
+        "404":
+          description: The specified resource was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        "500":
+          description: An internal server error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /locations/list:
+    get:
+      tags:
+      - locations
+      summary: List locations
+      description: |
+        Lists alllocations with ID and Name. Use locations/get with query string 'query'
+        containing the location id to get specific information about a location.
+      operationId: listLocations
+      responses:
+        "200":
+          description: list of locations with Id and Name
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Location'
+                x-content-type: application/json
+        "400":
+          description: bad input parameter
+  /locations/get:
+    get:
+      tags:
+      - locations
+      summary: Retrieve location info
+      description: "Use  with query string 'locationID' containing the location id\
+        \ to \nget specific information about a location.\n"
+      operationId: getLocation
+      parameters:
+      - name: locationID
+        in: query
+        description: |
+          pass an location ID to lookup detailed info about the event
+        required: true
+        style: form
+        explode: true
+        schema:
+          minimum: 1
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: detailed description about a location
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Location'
+                x-content-type: application/json
+        "400":
+          description: bad input parameter
+  /locations/add:
+    post:
+      tags:
+      - locations
+      summary: adds a location
+      description: Adds an new location to the system
+      operationId: addLocation
+      requestBody:
+        description: Event to create
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Location'
+      responses:
+        "201":
+          description: location is created
+        "400":
+          description: "invalid input, object invalid"
+        "409":
+          description: |
+            an existing location already exists. Use /locations/modify
+            to modify an already existing location
+  /locations/modify:
+    put:
+      tags:
+      - locations
+      summary: modify a location
+      description: Modifies an already existing location
+      operationId: modifyLocation
+      requestBody:
+        description: Details to modify about a location
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Location'
+      responses:
+        "201":
+          description: Location is modified
+        "400":
+          description: "invalid input, object invalid"
+  /locations/delete:
+    delete:
+      tags:
+      - locations
+      summary: delete an location
+      description: Deletes an already existing location
+      operationId: deleteLocation
+      parameters:
+      - name: locationID
+        in: query
+        description: |
+          pass an location ID to delete
+        required: true
+        style: form
+        explode: true
+        schema:
+          minimum: 1
+          type: integer
+          format: int32
+      responses:
+        "204":
+          description: location deleted
+        "404":
+          description: location id not found
+        "500":
+          description: something went wrong when deleting location
+  /roles/list:
+    get:
+      tags:
+      - roles
+      summary: List roles
+      description: |
+        Lists allroles with ID and Name. Use roles/get with query string 'query'
+        containing the role id to get specific information about a role.
+      operationId: listroles
+      responses:
+        "200":
+          description: list of roles with Id and Name
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Role'
+                x-content-type: application/json
+        "400":
+          description: bad input parameter
+  /roles/get:
+    get:
+      tags:
+      - roles
+      summary: Retrieve role info
+      description: "Use  with query string 'roleID' containing the role id to  \n\
+        get specific information about a role.\n"
+      operationId: getrole
+      parameters:
+      - name: roleID
+        in: query
+        description: |
+          pass an role ID to lookup detailed info about the event
+        required: true
+        style: form
+        explode: true
+        schema:
+          minimum: 1
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: detailed description about a role
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Role'
+                x-content-type: application/json
+        "400":
+          description: bad input parameter
+  /roles/add:
+    post:
+      tags:
+      - roles
+      summary: adds a role
+      description: Adds an new role to the system
+      operationId: addrole
+      requestBody:
+        description: Event to create
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Role'
+      responses:
+        "201":
+          description: role is created
+        "400":
+          description: "invalid input, object invalid"
+        "409":
+          description: |
+            an existing role already exists. Use /roles/modify
+            to modify an already existing role
+  /roles/modify:
+    put:
+      tags:
+      - roles
+      summary: modify a role
+      description: Modifies an already existing role
+      operationId: modifyrole
+      requestBody:
+        description: Details to modify about a role
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Role'
+      responses:
+        "201":
+          description: role is modified
+        "400":
+          description: "invalid input, object invalid"
+  /roles/delete:
+    delete:
+      tags:
+      - roles
+      summary: delete an role
+      description: Deletes an already existing role
+      operationId: deleterole
+      parameters:
+      - name: roleID
+        in: query
+        description: |
+          pass an role ID to delete
+        required: true
+        style: form
+        explode: true
+        schema:
+          minimum: 1
+          type: integer
+          format: int32
+      responses:
+        "204":
+          description: role deleted
+        "404":
+          description: role id not found
+        "500":
+          description: something went wrong when deleting role
+components:
+  schemas:
+    Event:
+      required:
+      - date
+      - enteties
+      - id
+      - locations
+      - name
+      type: object
+      properties:
+        id:
+          type: string
+          description: UUID for the event
+          example: f1db4bd6-16a1-46a7-a683-5a884b46d0ae
+        name:
+          type: string
+          description: Human readable name
+          example: Grand Tournament
+        locations:
+          type: array
+          items:
+            type: string
+            description: UUID of an existing location linked to the event
+            example: da5525ef-c098-479f-9191-b319f5ea516d
+        enteties:
+          type: array
+          items:
+            type: string
+            description: UUID of an existing entity linked to the event
+            example: ee08d523-42b1-455c-a10c-df8bae90588f
+        date:
+          type: string
+          description: 'Date and time the event event will start. '
+          format: date-time
+          example: 2019-12-01T09:30:43.001Z
+      example:
+        date: 2019-12-01T09:30:43.001Z
+        enteties:
+        - ee08d523-42b1-455c-a10c-df8bae90588f
+        - ee08d523-42b1-455c-a10c-df8bae90588f
+        name: Grand Tournament
+        locations:
+        - da5525ef-c098-479f-9191-b319f5ea516d
+        - da5525ef-c098-479f-9191-b319f5ea516d
+        id: f1db4bd6-16a1-46a7-a683-5a884b46d0ae
+    EventNew:
+      required:
+      - date
+      - enteties
+      - locations
+      - name
+      type: object
+      properties:
+        name:
+          type: string
+          description: Human readable name
+          example: Grand Tournament
+        locations:
+          type: array
+          items:
+            type: string
+            description: UUID of an existing location linked to the event
+            example: da5525ef-c098-479f-9191-b319f5ea516d
+        enteties:
+          type: array
+          items:
+            type: string
+            description: UUID of an existing entity linked to the event
+            example: ee08d523-42b1-455c-a10c-df8bae90588f
+        date:
+          type: string
+          description: 'Date and time the event event will start. '
+          format: date-time
+          example: 2019-12-01T09:30:43.001Z
+    EventIdName:
+      required:
+      - id
+      - name
+      type: object
+      properties:
+        id:
+          type: string
+          description: UUID for the event
+          example: f1db4bd6-16a1-46a7-a683-5a884b46d0ae
+        name:
+          type: string
+          description: Human readable name
+          example: Grand Tournament
+      example:
+        name: Grand Tournament
+        id: f1db4bd6-16a1-46a7-a683-5a884b46d0ae
+    EventId:
+      required:
+      - id
+      type: object
+      properties:
+        id:
+          type: string
+          description: UUID for the event
+          example: f1db4bd6-16a1-46a7-a683-5a884b46d0ae
+      example:
+        id: f1db4bd6-16a1-46a7-a683-5a884b46d0ae
+    Location:
+      required:
+      - description
+      - id
+      - name
+      type: object
+      properties:
+        id:
+          type: string
+          example: 50ea2523-5118-459a-aa76-1d045831c455
+        name:
+          type: string
+          example: Ring 1
+        description:
+          type: string
+          example: First ring on your right when entering through the west enterance.
+      example:
+        name: Ring 1
+        description: First ring on your right when entering through the west enterance.
+        id: 50ea2523-5118-459a-aa76-1d045831c455
+    Entity:
+      required:
+      - id
+      - name
+      - roles
+      type: object
+      properties:
+        id:
+          type: string
+          description: UUID for the entity
+          example: 5691f5a1-cde4-4b09-8a1a-38fa5ba4adf2
+        name:
+          type: string
+          description: Human readable name of the entity
+          example: Player 1
+        roles:
+          type: array
+          items:
+            type: string
+            description: UUIDs of abilites grouped togheter in this role
+            example: 1c546582-0fda-4875-8b26-8dd70599e6ba
+        parents:
+          type: array
+          items:
+            type: string
+            description: UUIDs of other enteties that are parents to this entity
+            example: 5691f5a1-cde4-4b09-8a1a-38fa5ba4adf2
+        children:
+          type: array
+          items:
+            type: string
+            description: UUIDs of other enteties that are children to this entity
+            example: 5691f5a1-cde4-4b09-8a1a-38fa5ba4adf2
+        attributes:
+          type: array
+          description: List of objects that have attributes associated with the entity
+          items:
+            type: object
+            description: An object holding information about the entity
+            example:
+              JWTtoken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+      example:
+        children:
+        - 5691f5a1-cde4-4b09-8a1a-38fa5ba4adf2
+        - 5691f5a1-cde4-4b09-8a1a-38fa5ba4adf2
+        roles:
+        - 1c546582-0fda-4875-8b26-8dd70599e6ba
+        - 1c546582-0fda-4875-8b26-8dd70599e6ba
+        name: Player 1
+        attributes:
+        - JWTtoken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+        - JWTtoken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+        id: 5691f5a1-cde4-4b09-8a1a-38fa5ba4adf2
+        parents:
+        - 5691f5a1-cde4-4b09-8a1a-38fa5ba4adf2
+        - 5691f5a1-cde4-4b09-8a1a-38fa5ba4adf2
+    EntityNew:
+      required:
+      - name
+      type: object
+      properties:
+        name:
+          type: string
+          description: Human readable name of the entity
+          example: Player 1
+        roles:
+          type: array
+          items:
+            type: string
+            description: UUIDs of abilites grouped togheter in this role
+            example: 1c546582-0fda-4875-8b26-8dd70599e6ba
+        parents:
+          type: array
+          items:
+            type: string
+            description: UUIDs of other enteties that are parents to this entity
+            example: 5691f5a1-cde4-4b09-8a1a-38fa5ba4adf2
+        children:
+          type: array
+          items:
+            type: string
+            description: UUIDs of other enteties that are children to this entity
+            example: 5691f5a1-cde4-4b09-8a1a-38fa5ba4adf2
+        attributes:
+          type: array
+          description: List of objects that have attributes associated with the entity
+          items:
+            type: object
+            description: An object holding information about the entity
+            example:
+              JWTtoken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+    EntityIdName:
+      required:
+      - id
+      - name
+      type: object
+      properties:
+        id:
+          type: string
+          description: UUID for the entity
+          example: 5691f5a1-cde4-4b09-8a1a-38fa5ba4adf2
+        name:
+          type: string
+          description: Human readable name of the entity
+          example: Player 1
+      example:
+        name: Player 1
+        id: 5691f5a1-cde4-4b09-8a1a-38fa5ba4adf2
+    EntityId:
+      required:
+      - id
+      type: object
+      properties:
+        id:
+          type: string
+          description: UUID for the entity
+          example: 5691f5a1-cde4-4b09-8a1a-38fa5ba4adf2
+      example:
+        id: 5691f5a1-cde4-4b09-8a1a-38fa5ba4adf2
+    Ability:
+      required:
+      - description
+      - id
+      - name
+      type: object
+      properties:
+        id:
+          type: string
+          description: UUID of the ability
+          example: d5721b3a-bdd0-430a-930f-813674eb02c9
+        name:
+          type: string
+          description: Human readable name of the ability
+          example: Modify
+        description:
+          type: string
+          description: "Ability that an entity posseses. Examples are \"Create\",\
+            \ \"Modify\", \"Delete\", etc."
+          example: Can edit a specific event or location
+      example:
+        name: Modify
+        description: Can edit a specific event or location
+        id: d5721b3a-bdd0-430a-930f-813674eb02c9
+    AbilityNew:
+      required:
+      - name
+      type: object
+      properties:
+        name:
+          type: string
+          description: Human readable name of the ability
+          example: Modify
+        description:
+          type: string
+          description: "Ability that an entity posseses. Examples are \"Create\",\
+            \ \"Modify\", \"Delete\", etc."
+          example: Can edit a specific event or location
+    AbilityId:
+      required:
+      - id
+      type: object
+      properties:
+        id:
+          type: string
+          description: UUID of the ability
+          example: d5721b3a-bdd0-430a-930f-813674eb02c9
+      example:
+        id: d5721b3a-bdd0-430a-930f-813674eb02c9
+    Role:
+      type: object
+      properties:
+        id:
+          type: string
+          description: UUID for the role
+          example: 1c546582-0fda-4875-8b26-8dd70599e6ba
+        name:
+          type: string
+          description: Human readable name of the role
+          example: Administrator
+        abilities:
+          type: array
+          items:
+            type: string
+            description: List of abilities that are group togheter for an entity
+            example: d5721b3a-bdd0-430a-930f-813674eb02c9
+      example:
+        abilities:
+        - d5721b3a-bdd0-430a-930f-813674eb02c9
+        - d5721b3a-bdd0-430a-930f-813674eb02c9
+        name: Administrator
+        id: 1c546582-0fda-4875-8b26-8dd70599e6ba
+    Error:
+      type: object
+      properties:
+        errorid:
+          type: integer
+          description: Error number of the error that occurred. HTTP 5xx code
+          format: int32
+          example: 500
+        errormsg:
+          type: string
+          description: Error message for the error that occurred
+          example: Internal Server Error
+    NotFound:
+      type: object
+      properties:
+        errorid:
+          type: integer
+          description: Error number of the error that occurred. HTTP 4xx code
+          format: int32
+          example: 404
+        errormsg:
+          type: string
+          description: Error message for the error that occurred
+          example: Not Found
+    Unauthorized:
+      type: object
+      properties:
+        errorid:
+          type: integer
+          description: Error number of the error that occurred. HTTP 4xx code
+          format: int32
+          example: 401
+        errormsg:
+          type: string
+          description: Error message for the error that occurred
+          example: Unauthorized
+    Forbidden:
+      type: object
+      properties:
+        errorid:
+          type: integer
+          description: Error number of the error that occurred. HTTP 4xx code
+          format: int32
+          example: 403
+        errormsg:
+          type: string
+          description: Error message for the error that occurred
+          example: Forbidden
+    Invalid:
+      type: object
+      properties:
+        errorid:
+          type: integer
+          description: Error number of the error that occurred. HTTP 4xx code
+          format: int32
+          example: 400
+        errormsg:
+          type: string
+          description: Error message for the error that occurred
+          example: Invalid Object or resource
+    Duplicate:
+      type: object
+      properties:
+        errorid:
+          type: integer
+          description: Error number of the error that occurred. HTTP 4xx code
+          format: int32
+          example: 409
+        errormsg:
+          type: string
+          description: Error message for the error that occurred
+          example: Duplicate object exsists
+  responses:
+    NotFound:
+      description: The specified resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/NotFound'
+    Invalid:
+      description: "An invalid input, or object invalid"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Invalid'
+    InternalError:
+      description: An internal server error occurred
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Client is not logged in and tries to reach a resource that needs
+        authorization
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Unauthorized'
+    Forbidden:
+      description: Client is actorhized but does not have authorization to use this
+        resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Forbidden'
+    Duplicate:
+      description: A duplicate resource already exists. Try using resource/modify
+        instead
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Duplicate'
+  links:
+    GetAbility:
+      operationId: getAbility
+      parameters:
+        id: $response.body#/id
+      description: Get ability name and description
+    ModifyAbility:
+      operationId: modifyAbility
+      parameters:
+        id: $response.body#/id
+      description: "Modify ability, change name and/or description"
+    DelAbility:
+      operationId: deleteAbility
+      parameters:
+        id: $response.body#/id
+      description: Delete ability
+    GetEntity:
+      operationId: getEntity
+      parameters:
+        id: $response.body#/id
+      description: Get entity full information
+    ModifyEntity:
+      operationId: modifyEntity
+      parameters:
+        id: $response.body#/id
+      description: "Modify entity, modify any information beside UUID which is immutable."
+    DelEntity:
+      operationId: deleteEntity
+      parameters:
+        id: $response.body#/id
+      description: Delete entity
+    GetEvent:
+      operationId: getEvent
+      parameters:
+        id: $response.body#/id
+      description: Get full information about an event
+    ModifyEvent:
+      operationId: modifyEvent
+      parameters:
+        id: $response.body#/id
+      description: "Modify event, modify any information beside UUID which is immutable."
+    DelEvent:
+      operationId: deleteEvent
+      parameters:
+        id: $response.body#/id
+      description: Delete event
